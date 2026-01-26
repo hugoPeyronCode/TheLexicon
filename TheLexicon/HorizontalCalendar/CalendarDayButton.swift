@@ -15,20 +15,6 @@ struct CalendarDayButton: View {
   let totalCount: Int
   let screenSize: CGSize
   
-  // MARK: - Layout
-  
-  private var buttonWidth: CGFloat { screenSize.width * 0.18 }
-  private var buttonHeight: CGFloat { screenSize.height * 0.14 }
-  private var cornerRadius: CGFloat { screenSize.width * 0.025 }
-  private var strokeWidth: CGFloat { screenSize.width * 0.005 }
-  private var bottomElementHeight: CGFloat { screenSize.height * 0.02 }
-  
-  // MARK: - Fonts
-  
-  private var iconFont: Font { .system(size: screenSize.width * 0.06) }
-  private var dayFont: Font { .system(size: screenSize.width * 0.04) }
-  private var bottomFont: Font { .system(size: screenSize.width * 0.03) }
-  
   // MARK: - Date Helpers
   
   private var isToday: Bool {
@@ -133,46 +119,57 @@ struct CalendarDayButton: View {
   var body: some View {
     VStack(spacing: 4) {
       Image(systemName: sealIcon)
-        .font(iconFont)
+        .font(AppFonts.Calendar.icon(screenSize))
         .foregroundStyle(iconColor)
       
       Text(dayAbbreviation)
-        .font(dayFont)
+        .font(AppFonts.Calendar.day(screenSize))
         .foregroundStyle(dayAbbreviationColor)
       
       Text(dayNumber)
-        .font(dayFont)
+        .font(AppFonts.Calendar.day(screenSize))
         .fontWeight(isToday ? .semibold : .regular)
         .foregroundStyle(textColor)
       
       Group {
         if isToday {
           Image(systemName: "circle.fill")
-            .font(bottomFont)
+            .font(AppFonts.Calendar.bottom(screenSize))
             .foregroundStyle(AppColors.Calendar.todayDot)
         } else {
           Text("\(completedCount)/\(totalCount)")
-            .font(bottomFont)
+            .font(AppFonts.Calendar.bottom(screenSize))
             .foregroundStyle(bottomTextColor)
         }
       }
-      .frame(height: bottomElementHeight)
+      .frame(height: AppLayout.Calendar.bottomElementHeight(screenSize))
     }
-    .fontDesign(.serif)
-    .frame(width: buttonWidth, height: buttonHeight)
+    .fontDesign(AppFontManager.shared.currentDesign.swiftUIDesign)
+    .frame(
+      width: AppLayout.Calendar.buttonWidth(screenSize),
+      height: AppLayout.Calendar.buttonHeight(screenSize)
+    )
     .background {
-      RoundedRectangle(cornerRadius: cornerRadius)
+      RoundedRectangle(cornerRadius: AppLayout.Calendar.cornerRadius(screenSize))
         .fill(backgroundColor)
     }
     .overlay {
-      RoundedRectangle(cornerRadius: cornerRadius)
+      RoundedRectangle(cornerRadius: AppLayout.Calendar.cornerRadius(screenSize))
         .stroke(lineWidth: borderWidth)
         .foregroundStyle(borderColor)
       
       if !isFuture && completedCount > 0 {
-        ProgressRoundedRect(progress: progress, cornerRadius: cornerRadius)
-          .stroke(style: StrokeStyle(lineWidth: strokeWidth, lineCap: .round))
-          .foregroundStyle(progressColor)
+        ProgressRoundedRect(
+          progress: progress,
+          cornerRadius: AppLayout.Calendar.cornerRadius(screenSize)
+        )
+        .stroke(
+          style: StrokeStyle(
+            lineWidth: AppLayout.Calendar.strokeWidth(screenSize),
+            lineCap: .round
+          )
+        )
+        .foregroundStyle(progressColor)
       }
     }
     .animation(.easeInOut(duration: 0.2), value: isSelected)

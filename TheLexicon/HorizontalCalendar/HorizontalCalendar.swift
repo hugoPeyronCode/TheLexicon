@@ -2,7 +2,7 @@
 //  HorizontalCalendar.swift
 //  TheLexicon
 //
-//Created by Hugo Peyron on 25/01/2026.
+//  Created by Hugo Peyron on 25/01/2026.
 //
 
 import SwiftUI
@@ -42,11 +42,6 @@ class HorizontalCalendarViewModel {
   
   func isSelected(_ date: Date) -> Bool {
     guard let selectedDate else { return false }
-    
-    // Compares two dates to check if they fall on the same calendar day.
-    // This ignores time components (hours, minutes, seconds).
-    // Example: Jan 25 at 10:00 AM and Jan 25 at 3:00 PM → returns true
-    // Example: Jan 25 at 10:00 AM and Jan 26 at 10:00 AM → returns false
     return calendar.isDate(date, inSameDayAs: selectedDate)
   }
   
@@ -60,19 +55,9 @@ class HorizontalCalendarViewModel {
   }
   
   func completedCount(for date: Date) -> Int {
-    // If it's today or a future date, no completed tasks
     if calendar.isDateInToday(date) || isFuture(date) {
       return 0
     }
-    
-    // PLACEHOLDER: This is fake data for demonstration.
-    // It calculates how many days ago this date was,
-    // then uses modulo 5 to get a number between 0-4.
-    //
-    // Example: 3 days ago → 3 % 5 = 3 completed
-    // Example: 7 days ago → 7 % 5 = 2 completed
-    //
-    // TODO: Replace with real data from your levels/tasks model
     let daysAgo = calendar.dateComponents([.day], from: date, to: Date()).day ?? 0
     return abs(daysAgo) % 5
   }
@@ -94,15 +79,9 @@ class HorizontalCalendarScrollState {
   }
   
   var isTodayVisible: Bool {
-    let result = visibleDates.contains { date in
+    visibleDates.contains { date in
       calendar.isDateInToday(date)
     }
-    
-    // Make it only working for day inthe past. Do not show the chevron when we are in the future.
-    print("📅 Visible dates count: \(visibleDates.count)")
-    print("📅 Today: \(today)")
-    print("📅 Is today visible: \(result)")
-    return result
   }
   
   var isTodayOnRight: Bool {
@@ -132,61 +111,77 @@ struct HorizontalCalendar: View {
   @State private var scrollProxy: ScrollViewProxy?
   
   var body: some View {
-    GeometryReader { geometry in
-      let screenSize = geometry.size
-      
-      ScrollViewReader { proxy in
-        ScrollView(.horizontal, showsIndicators: false) {
-          LazyHStack(spacing: 8) {
-            ForEach(vm.dates, id: \.self) { date in
-              CalendarDayButton(
-                date: date,
-                isSelected: vm.isSelected(date),
-                completedCount: vm.completedCount(for: date),
-                totalCount: 4,
-                screenSize: screenSize
-              )
-              .id(date)
-              .onTapGesture {
-                vm.selectDate(date)
-              }
-              .onGeometryChange(for: Bool.self) { geo in
-                let frame = geo.frame(in: .global)
-                let screenWidth = screenSize.width
-                return frame.minX < screenWidth && frame.maxX > 0
-              } action: { isVisible in
-                if isVisible {
-                  scrollState.markVisible(date)
-                } else {
-                  scrollState.markHidden(date)
-                }
+    ScrollViewReader { proxy in
+      ScrollView(.horizontal, showsIndicators: false) {
+        LazyHStack(spacing: AppLayout.Spacing.sm(screenSize)) {
+          ForEach(vm.dates, id: \.self) { date in
+            CalendarDayButton(
+              date: date,
+              isSelected: vm.isSelected(date),
+              completedCount: vm.completedCount(for: date),
+              totalCount: 4,
+              screenSize: screenSize
+            )
+            .id(date)
+            .onTapGesture {
+              selectAndScroll(to: date)
+            }
+            .onGeometryChange(for: Bool.self) { geo in
+              let frame = geo.frame(in: .global)
+              return frame.minX < screenSize.width && frame.maxX > 0
+            } action: { isVisible in
+              if isVisible {
+                scrollState.markVisible(date)
+              } else {
+                scrollState.markHidden(date)
               }
             }
           }
-          .padding()
         }
-        .overlay(alignment: .trailing) {
-          if !scrollState.isTodayVisible {
-            TodayChevronButton(direction: scrollState.chevronDirection) {
-              scrollToToday()
-            }
+        .padding()
+      }
+      .overlay(alignment: .trailing) {
+        if !scrollState.isTodayVisible {
+          TodayChevronButton(direction: scrollState.chevronDirection) {
+            scrollToToday()
           }
         }
-        .animation(.easeInOut(duration: 0.2), value: scrollState.isTodayVisible)
-        .onAppear {
-          scrollProxy = proxy
-          scrollToToday()
-        }
+      }
+      .animation(.easeInOut(duration: 0.2), value: scrollState.isTodayVisible)
+      .onAppear {
+        scrollProxy = proxy
+        scrollToToday()
       }
     }
   }
   
+  // MARK: - Screen Size Helper
+  
+  private var screenSize: CGSize {
+    guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+          let window = windowScene.windows.first else {
+      return UIScreen.main.bounds.size
+    }
+    return window.bounds.size
+  }
+  
+  private func selectAndScroll(to date: Date) {
+    vm.selectDate(date)
+    guard vm.isSelected(date) else { return }
+    
+    withAnimation(.snappy) {
+      scrollProxy?.scrollTo(date, anchor: .center)
+    }
+  }
+  
   private func scrollToToday() {
+    vm.selectDate(vm.today)
     withAnimation(.snappy) {
       scrollProxy?.scrollTo(vm.today, anchor: .center)
     }
   }
 }
+
 // MARK: - Subviews
 
 struct TodayChevronButton: View {
@@ -200,11 +195,12 @@ struct TodayChevronButton: View {
         .font(.caption)
         .fontWeight(.semibold)
         .fontDesign(.serif)
-        .foregroundStyle(.brown)
+        .foregroundStyle(AppColors.textPrimary)
         .padding(10)
         .background {
           Circle()
-            .fill(.brown.opacity(0.15))
+            .glassEffect(.identity.tint(AppColors.accent))
+            .foregroundStyle(AppColors.accentMuted)
         }
     }
     .padding(.horizontal)
@@ -214,5 +210,5 @@ struct TodayChevronButton: View {
 }
 
 #Preview {
-  HorizontalCalendar()
+  MainView()
 }
