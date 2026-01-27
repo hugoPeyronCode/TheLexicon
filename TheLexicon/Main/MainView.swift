@@ -14,10 +14,19 @@ struct MainView: View {
   var body: some View {
     NavigationStack {
       GeometryReader { geometry in
-        ScrollView{
+        ScrollView() {
           HorizontalCalendar(screenSize: geometry.size)
           
-          Spacer()
+          
+          VStack{
+            
+          }
+          
+          VStack {
+            SessionStartButton {
+              //
+            }
+          }
         }
       }
       .navigationBarTitleDisplayMode(.inline)
@@ -52,7 +61,7 @@ struct StreakBadge: View {
   var body: some View {
     HStack(spacing: 4) {
       Image(systemName: "flame.fill")
-        .foregroundStyle(.orange)
+        .foregroundStyle(AppColors.accent)
       Text("\(count)")
         .fontWeight(.semibold)
     }

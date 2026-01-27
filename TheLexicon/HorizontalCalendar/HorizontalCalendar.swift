@@ -47,10 +47,10 @@ struct HorizontalCalendar: View {
         }
       }
       .animation(.easeInOut(duration: 0.2), value: showChevron)
-      .onAppear {
-        scrollProxy = proxy
-        scrollProxy?.scrollTo(vm.today, anchor: .center)
-        scrollToToday()
+      .task {
+          scrollProxy = proxy
+          try? await Task.sleep(for: .milliseconds(50))
+          scrollProxy?.scrollTo(vm.today, anchor: .center)
       }
     }
     .sensoryFeedback(.selection, trigger: vm.selectedDate)
