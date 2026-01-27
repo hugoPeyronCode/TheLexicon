@@ -8,22 +8,34 @@
 import SwiftUI
 
 struct SessionStartButton: View {
+  let isCompleted: Bool
   let action: () -> Void
-  
+
+  init(isCompleted: Bool = false, action: @escaping () -> Void) {
+    self.isCompleted = isCompleted
+    self.action = action
+  }
+
   var body: some View {
     GlassEffectContainer {
       Button(action: action) {
-        Text("Start Session")
-          .fontDesign(.serif)
-          .font(.title2)
-          .fontWeight(.semibold)
-          .foregroundStyle(AppColors.textInverse)
-          .frame(maxWidth: .infinity)
-          .padding()
+        HStack(spacing: 8) {
+          if isCompleted {
+            Image(systemName: "checkmark.circle.fill")
+          }
+          Text(isCompleted ? "Completed!" : "Start Session")
+        }
+        .fontDesign(.serif)
+        .font(.title2)
+        .fontWeight(.semibold)
+        .foregroundStyle(isCompleted ? AppColors.stateSuccess : AppColors.textInverse)
+        .frame(maxWidth: .infinity)
+        .padding()
       }
-      .tint(AppColors.accent)
+      .tint(isCompleted ? AppColors.surfaceDefault : AppColors.accent)
       .buttonStyle(.glassProminent)
       .padding()
+      .disabled(isCompleted)
     }
   }
 }

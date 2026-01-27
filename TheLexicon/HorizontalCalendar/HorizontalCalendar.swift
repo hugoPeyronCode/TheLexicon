@@ -8,15 +8,15 @@
 import SwiftUI
 
 struct HorizontalCalendar: View {
-  
+
   let screenSize: CGSize
-  
+  @Binding var selectedDate: Date
+
   @State private var vm = HorizontalCalendarViewModel()
   @State private var scrollProxy: ScrollViewProxy?
-  
+
   private var showChevron: Bool {
-    guard let selected = vm.selectedDate else { return false }
-    return vm.daysDifferenceFromToday(selected) >= 5
+    return vm.daysDifferenceFromToday(selectedDate) >= 5
   }
   
   var body: some View {
@@ -26,9 +26,9 @@ struct HorizontalCalendar: View {
           ForEach(vm.dates, id: \.self) { date in
             CalendarDayButton(
               date: date,
-              isSelected: vm.isSelected(date),
+              isSelected: vm.calendar.isDate(date, inSameDayAs: selectedDate),
               completedCount: vm.completedCount(for: date),
-              totalCount: 4,
+              totalCount: vm.totalCount(for: date),
               screenSize: screenSize
             )
             .id(date)
@@ -53,22 +53,23 @@ struct HorizontalCalendar: View {
           scrollProxy?.scrollTo(vm.today, anchor: .center)
       }
     }
-    .sensoryFeedback(.selection, trigger: vm.selectedDate)
+    .sensoryFeedback(.selection, trigger: selectedDate)
   }
   
   // MARK: - Actions
-  
+
   private func selectDate(_ date: Date) {
-    vm.selectDate(date)
-    
+    guard !vm.isFuture(date) else { return }
+    selectedDate = date
+
     withAnimation(.snappy) {
       scrollProxy?.scrollTo(date, anchor: .center)
     }
   }
-  
+
   private func scrollToToday() {
-    vm.selectDate(vm.today)
-    
+    selectedDate = vm.today
+
     withAnimation(.snappy) {
       scrollProxy?.scrollTo(vm.today, anchor: .center)
     }
@@ -77,4 +78,5 @@ struct HorizontalCalendar: View {
 
 #Preview {
   MainView()
+    .withPreviewContainer()
 }

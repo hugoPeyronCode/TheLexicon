@@ -16,8 +16,7 @@ class HorizontalCalendarViewModel {
   
   let dates: [Date]
   let today: Date
-  
-  private let calendar = Calendar.current
+  let calendar = Calendar.current
   
   // MARK: - Init
   
@@ -60,11 +59,17 @@ class HorizontalCalendarViewModel {
   }
   
   func completedCount(for date: Date) -> Int {
-    if calendar.isDateInToday(date) || isFuture(date) {
+    if isFuture(date) {
       return 0
     }
-    let daysAgo = calendar.dateComponents([.day], from: date, to: today).day ?? 0
-    return abs(daysAgo) % 5
+    return DailyProgressManager.shared.completedCount(for: date)
+  }
+
+  func totalCount(for date: Date) -> Int {
+    if isFuture(date) {
+      return 4 // Default total groups
+    }
+    return DailyProgressManager.shared.totalCount(for: date)
   }
   
   func daysDifferenceFromToday(_ date: Date) -> Int {
