@@ -142,7 +142,6 @@ struct CalendarDayButton: View {
             .foregroundStyle(bottomTextColor)
         }
       }
-      .frame(height: AppLayout.Calendar.bottomElementHeight(screenSize))
     }
     .fontDesign(AppFontManager.shared.currentDesign.swiftUIDesign)
     .frame(
