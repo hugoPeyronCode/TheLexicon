@@ -14,6 +14,8 @@ struct ConnectionsGameView: View {
 
   @State private var viewModel: ConnectionsGameViewModel
   @State private var showContinueButton: Bool = false
+  @State private var showRestartAlert: Bool = false
+  @State private var showExitAlert: Bool = false
 
   private let columns = 4
 
@@ -28,45 +30,116 @@ struct ConnectionsGameView: View {
   }
 
   var body: some View {
-    GeometryReader { geometry in
-      ZStack(alignment: .bottom) {
-        // Main game content
-        VStack(spacing: 0) {
-          // Header with glass effect
-          header(screenSize: geometry.size)
-
-          if needsScrolling {
-            // Scrollable grid for large levels
-            ScrollView {
+    NavigationStack {
+      GeometryReader { geometry in
+        ZStack(alignment: .bottom) {
+          // Main game content
+          VStack(spacing: 0) {
+            if needsScrolling {
+              // Scrollable grid for large levels
+              ScrollView {
+                wordGrid(screenSize: geometry.size)
+                  .padding(AppLayout.Padding.md(geometry.size))
+              }
+            } else {
+              // Non-scrollable grid for small levels
+              Spacer()
               wordGrid(screenSize: geometry.size)
-                .padding(.vertical, AppLayout.Padding.md(geometry.size))
+                .padding(.horizontal, AppLayout.Padding.md(geometry.size))
+              Spacer()
             }
-          } else {
-            // Non-scrollable grid for small levels
-            Spacer()
-            wordGrid(screenSize: geometry.size)
-            Spacer()
+
+            // Bottom spacer for toolbar
+            if viewModel.isGameWon {
+              Color.clear
+                .frame(height: AppLayout.Padding.lg(geometry.size) * 2 + 60)
+            }
           }
 
-          // Bottom Controls (hidden when game won)
-          if !viewModel.isGameWon {
-            bottomControls(screenSize: geometry.size)
-          } else {
-            // Spacer to maintain layout
-            Color.clear
-              .frame(height: AppLayout.Padding.lg(geometry.size) * 2 + 60)
+          // Continue button overlay (appears from bottom when game won)
+          if viewModel.isGameWon {
+            continueButton(screenSize: geometry.size)
+              .transition(.move(edge: .bottom).combined(with: .opacity))
           }
-        }
-        .padding(.horizontal, AppLayout.Padding.md(geometry.size))
-
-        // Continue button overlay (appears from bottom when game won)
-        if viewModel.isGameWon {
-          continueButton(screenSize: geometry.size)
-            .transition(.move(edge: .bottom).combined(with: .opacity))
         }
       }
+      .scrollIndicators(.hidden)
+      .background(AppColors.backgroundPrimary)
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        // Leading: Exit button
+        ToolbarItem(placement: .topBarLeading) {
+          Button {
+            showExitAlert = true
+          } label: {
+            Image(systemName: "xmark")
+          }
+        }
+
+        // Center: Title
+        ToolbarItem(placement: .principal) {
+          Text("Connections")
+            .fontWeight(.bold)
+            .fontDesign(.serif)
+        }
+
+        // Trailing: Progress indicator
+        ToolbarItem(placement: .topBarTrailing) {
+          Text("\(viewModel.completedRows.count)/\(viewModel.totalRows)")
+            .font(.subheadline)
+            .fontWeight(.medium)
+            .foregroundStyle(AppColors.textSecondary)
+        }
+      }
+      .toolbar {
+        // Bottom toolbar (hidden when game won)
+        ToolbarItemGroup(placement: .bottomBar) {
+          if !viewModel.isGameWon {
+            Button {
+              withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                viewModel.shuffleWords()
+              }
+            } label: {
+              Label("Shuffle", systemImage: "shuffle")
+            }
+            .disabled(viewModel.isSwapping)
+
+            Button {
+              showRestartAlert = true
+            } label: {
+              Label("Restart", systemImage: "arrow.counterclockwise")
+            }
+            .disabled(viewModel.isSwapping)
+
+            Spacer()
+
+            if viewModel.selectedIndex != nil {
+              Text("Tap another card to swap")
+                .font(.caption)
+                .foregroundStyle(AppColors.textMuted)
+            }
+          }
+        }
+      }
+      .alert("Restart Game?", isPresented: $showRestartAlert) {
+        Button("Cancel", role: .cancel) { }
+        Button("Restart", role: .destructive) {
+          withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+            viewModel.restart()
+          }
+        }
+      } message: {
+        Text("Your progress will be lost. Are you sure you want to restart?")
+      }
+      .alert("Exit Game?", isPresented: $showExitAlert) {
+        Button("Cancel", role: .cancel) { }
+        Button("Exit", role: .destructive) {
+          dismiss()
+        }
+      } message: {
+        Text("Your current progress will be saved. You can continue later.")
+      }
     }
-    .background(AppColors.backgroundPrimary)
     // Haptic feedback triggers
     .sensoryFeedback(.selection, trigger: viewModel.selectedIndex)
     .sensoryFeedback(.impact(weight: .medium), trigger: viewModel.swapInProgress)
@@ -77,45 +150,6 @@ struct ConnectionsGameView: View {
           showContinueButton = true
         }
       }
-    }
-  }
-
-  // MARK: - Header
-
-  @ViewBuilder
-  private func header(screenSize: CGSize) -> some View {
-    GlassEffectContainer {
-      HStack {
-        Button {
-          dismiss()
-        } label: {
-          Image(systemName: "xmark")
-            .font(AppFonts.body(screenSize))
-            .foregroundStyle(AppColors.textSecondary)
-            .padding(AppLayout.Padding.sm(screenSize))
-        }
-        .buttonStyle(.glass)
-
-        Spacer()
-
-        Text("Connections")
-          .font(AppFonts.title3(screenSize))
-          .fontWeight(.bold)
-          .fontDesign(.serif)
-
-        Spacer()
-
-        // Progress indicator
-        Text("\(viewModel.completedRows.count)/\(viewModel.totalRows)")
-          .font(AppFonts.body(screenSize))
-          .fontWeight(.medium)
-          .foregroundStyle(AppColors.textSecondary)
-          .padding(.horizontal, AppLayout.Padding.sm(screenSize))
-          .padding(.vertical, AppLayout.Spacing.xxs(screenSize))
-          .glassEffect(.regular.tint(AppColors.accent.opacity(0.3)))
-      }
-      .padding(.horizontal, AppLayout.Padding.sm(screenSize))
-      .padding(.vertical, AppLayout.Padding.sm(screenSize))
     }
   }
 
@@ -302,69 +336,6 @@ struct ConnectionsGameView: View {
     } else {
       return AppColors.borderDefault
     }
-  }
-
-  // MARK: - Bottom Controls
-
-  @ViewBuilder
-  private func bottomControls(screenSize: CGSize) -> some View {
-    HStack(spacing: AppLayout.Spacing.sm(screenSize)) {
-      // Shuffle Button
-      Button {
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-          viewModel.shuffleWords()
-        }
-      } label: {
-        HStack(spacing: AppLayout.Spacing.xs(screenSize)) {
-          Image(systemName: "shuffle")
-          Text("Shuffle")
-        }
-        .font(AppFonts.body(screenSize))
-        .fontWeight(.medium)
-        .foregroundStyle(AppColors.textSecondary)
-        .padding(.horizontal, AppLayout.Padding.md(screenSize))
-        .padding(.vertical, AppLayout.Padding.sm(screenSize))
-        .background {
-          Capsule()
-            .fill(AppColors.surfaceDefault)
-        }
-      }
-      .disabled(viewModel.isSwapping)
-
-      // Restart Button
-      Button {
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-          viewModel.restart()
-        }
-      } label: {
-        HStack(spacing: AppLayout.Spacing.xs(screenSize)) {
-          Image(systemName: "arrow.counterclockwise")
-          Text("Restart")
-        }
-        .font(AppFonts.body(screenSize))
-        .fontWeight(.medium)
-        .foregroundStyle(AppColors.textSecondary)
-        .padding(.horizontal, AppLayout.Padding.md(screenSize))
-        .padding(.vertical, AppLayout.Padding.sm(screenSize))
-        .background {
-          Capsule()
-            .fill(AppColors.surfaceDefault)
-        }
-      }
-      .disabled(viewModel.isSwapping)
-
-      Spacer()
-
-      // Hint text
-      if viewModel.selectedIndex != nil {
-        Text("Tap another card to swap")
-          .font(AppFonts.caption(screenSize))
-          .foregroundStyle(AppColors.textMuted)
-          .transition(.opacity)
-      }
-    }
-    .padding(.vertical, AppLayout.Padding.lg(screenSize))
-    .animation(.easeInOut(duration: 0.2), value: viewModel.selectedIndex != nil)
   }
 
   // MARK: - Continue Button
