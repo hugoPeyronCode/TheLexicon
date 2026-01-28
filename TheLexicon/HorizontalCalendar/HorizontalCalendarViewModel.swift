@@ -9,36 +9,54 @@ import SwiftUI
 
 @Observable
 class HorizontalCalendarViewModel {
-  
+
   // MARK: - Properties
-  
+
   var selectedDate: Date?
-  
-  let dates: [Date]
-  let today: Date
+
+  private(set) var dates: [Date] = []
+  private var cachedToday: Date
   let calendar = Calendar.current
-  
+
+  // Today is computed fresh each time to handle day changes
+  var today: Date {
+    calendar.startOfDay(for: Date())
+  }
+
   // MARK: - Init
-  
+
   init() {
     let calendar = Calendar.current
-    let today = calendar.startOfDay(for: Date())
-    
-    self.today = today
-    self.selectedDate = today
-    
-    // Pre-compute dates once
+    let initialToday = calendar.startOfDay(for: Date())
+
+    self.cachedToday = initialToday
+    self.selectedDate = initialToday
+
+    rebuildDates(for: initialToday)
+  }
+
+  // MARK: - Day Change Handling
+
+  func refreshIfNeeded() {
+    let currentToday = today
+    if currentToday != cachedToday {
+      cachedToday = currentToday
+      rebuildDates(for: currentToday)
+    }
+  }
+
+  private func rebuildDates(for today: Date) {
     let startDate = calendar.date(from: DateComponents(year: 2025, month: 1, day: 1))!
     let endDate = calendar.date(byAdding: .day, value: 5, to: today)!
-    
+
     var result: [Date] = []
     var current = startDate
-    
+
     while current <= endDate {
       result.append(current)
       current = calendar.date(byAdding: .day, value: 1, to: current)!
     }
-    
+
     self.dates = result
   }
   

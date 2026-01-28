@@ -176,7 +176,7 @@ private struct StatItem: View {
 
 #Preview {
   GeometryReader { geometry in
-    VStack(spacing: 20) {
+    ScrollView{
       ConnectionsGameCard(
         screenSize: geometry.size,
         wordCount: 16,

@@ -8,27 +8,50 @@
 import SwiftUI
 
 struct MainView: View {
+  
+  @Environment(\.scenePhase) private var scenePhase
 
-  @State private var streakCount: Int = 7
   @State private var showGame: Bool = false
+  @State private var showInfiniteGame: Bool = false
+  @State private var showStreakView: Bool = false
+  @State private var showVocabularyTest: Bool = false
+  @State private var showProfileDetail: Bool = false
+  @State private var showWordRevision: Bool = false
+  @State private var showDebugMenu: Bool = false
+  @State private var settingsTapCount: Int = 0
+  @State private var lastSettingsTapTime: Date = Date()
   @State private var selectedDate: Date = Calendar.current.startOfDay(for: Date())
+  @State private var lastActiveDate: Date = Calendar.current.startOfDay(for: Date())
 
+  private var streakCount: Int {
+    StreakManager.shared.currentStreak
+  }
+
+  private var vocabularyProfile: VocabularyProfileManager {
+    VocabularyProfileManager.shared
+  }
+
+  private var wordOfTheDay: WordDefinition? {
+    WordDatabase.shared.wordOfTheDay(for: Date())
+  }
+
+  
   private var selectedProgress: DailyProgress {
     DailyProgressManager.shared.progress(for: selectedDate)
   }
-
+  
   private var selectedGameData: [WordGroup] {
     ConnectionsGameData.game(for: selectedDate)
   }
-
+  
   private var wordCount: Int {
     selectedGameData.count * 4
   }
-
+  
   private var groupCount: Int {
     selectedGameData.count
   }
-
+  
   private var difficulty: String {
     switch selectedGameData.count {
     case 1...4: return "Easy"
@@ -37,11 +60,11 @@ struct MainView: View {
     default: return "Expert"
     }
   }
-
+  
   private var isSelectedDayCompleted: Bool {
     selectedProgress.completedGroups >= groupCount && groupCount > 0
   }
-
+  
   var body: some View {
     NavigationStack {
       GeometryReader { geometry in
@@ -49,7 +72,7 @@ struct MainView: View {
           ScrollView {
             VStack(spacing: AppLayout.Spacing.lg(geometry.size)) {
               HorizontalCalendar(screenSize: geometry.size, selectedDate: $selectedDate)
-
+              
               ConnectionsGameCard(
                 screenSize: geometry.size,
                 wordCount: wordCount,
@@ -59,6 +82,49 @@ struct MainView: View {
               )
               .padding(.horizontal, AppLayout.Padding.md(geometry.size))
               .animation(.easeInOut(duration: 0.2), value: selectedDate)
+
+              // Infinite Mode Card
+              InfiniteModeCard(
+                screenSize: geometry.size,
+                currentLevel: InfiniteModeProgressManager.shared.currentLevel,
+                completedLevels: InfiniteModeProgressManager.shared.completedLevels
+              ) {
+                showInfiniteGame = true
+              }
+              .padding(.horizontal, AppLayout.Padding.md(geometry.size))
+
+              // Vocabulary Profile Card
+              VocabularyProfileCard(
+                screenSize: geometry.size,
+                hasCompletedTest: vocabularyProfile.hasCompletedInitialTest,
+                vocabularyLevel: vocabularyProfile.vocabularyLevel,
+                overallScore: vocabularyProfile.overallScore,
+                categoryScores: vocabularyProfile.normalizedCategoryScores
+              ) {
+                if vocabularyProfile.hasCompletedInitialTest {
+                  showProfileDetail = true
+                } else {
+                  showVocabularyTest = true
+                }
+              }
+              .padding(.horizontal, AppLayout.Padding.md(geometry.size))
+
+              // Word of the Day Card
+              WordOfTheDayCard(
+                screenSize: geometry.size,
+                word: wordOfTheDay
+              ) {
+                showWordRevision = true
+              }
+              .padding(.horizontal, AppLayout.Padding.md(geometry.size))
+
+              // Word Revision Card
+              WordRevisionCard(
+                screenSize: geometry.size
+              ) {
+                showWordRevision = true
+              }
+              .padding(.horizontal, AppLayout.Padding.md(geometry.size))
             }
           }
 
@@ -70,10 +136,42 @@ struct MainView: View {
       .fullScreenCover(isPresented: $showGame) {
         ConnectionsGameView(date: selectedDate)
       }
+      .fullScreenCover(isPresented: $showInfiniteGame) {
+        ConnectionsGameView(infiniteLevel: InfiniteModeProgressManager.shared.currentLevel)
+      }
+      .fullScreenCover(isPresented: $showStreakView) {
+        StreakCelebrationView(
+          streakCount: streakCount,
+          longestStreak: StreakManager.shared.longestStreak,
+          isNewStreak: false
+        )
+      }
+      .fullScreenCover(isPresented: $showVocabularyTest) {
+        VocabularyTestView()
+      }
+      .fullScreenCover(isPresented: $showProfileDetail) {
+        ProfileDetailView(
+          vocabularyLevel: vocabularyProfile.vocabularyLevel,
+          overallScore: vocabularyProfile.overallScore,
+          totalWordsLearned: vocabularyProfile.totalWordsLearned,
+          categoryScores: vocabularyProfile.normalizedCategoryScores
+        )
+      }
+      .fullScreenCover(isPresented: $showWordRevision) {
+        WordRevisionView()
+      }
+      .fullScreenCover(isPresented: $showDebugMenu) {
+        DebugMenuView()
+      }
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {
-          StreakBadge(count: streakCount)
+          Button {
+            showStreakView = true
+          } label: {
+            StreakBadge(count: streakCount)
+          }
+          .buttonStyle(.plain)
         }
         
         ToolbarItem(placement: .principal) {
@@ -86,11 +184,50 @@ struct MainView: View {
         
         ToolbarItem(placement: .topBarTrailing) {
           Button {
-            // Settings action
+            handleSettingsTap()
           } label: {
             Image(systemName: "gearshape")
           }
         }
+      }
+      .onChange(of: scenePhase) { _, newPhase in
+        if newPhase == .active {
+          checkForDayChange()
+        }
+      }
+    }
+  }
+  
+  // MARK: - Settings Tap (Debug Menu Activation)
+
+  private func handleSettingsTap() {
+    let now = Date()
+    // Reset count if more than 2 seconds since last tap
+    if now.timeIntervalSince(lastSettingsTapTime) > 2.0 {
+      settingsTapCount = 0
+    }
+
+    lastSettingsTapTime = now
+    settingsTapCount += 1
+
+    if settingsTapCount >= 5 {
+      settingsTapCount = 0
+      showDebugMenu = true
+    }
+  }
+
+  // MARK: - Day Change Detection
+
+  private func checkForDayChange() {
+    let today = Calendar.current.startOfDay(for: Date())
+    
+    // If the day has changed since we last checked
+    if today != lastActiveDate {
+      lastActiveDate = today
+      
+      // If user was viewing the previous "today", update to new today
+      if selectedDate == Calendar.current.date(byAdding: .day, value: -1, to: today) {
+        selectedDate = today
       }
     }
   }

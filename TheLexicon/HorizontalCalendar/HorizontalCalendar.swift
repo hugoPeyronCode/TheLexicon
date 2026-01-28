@@ -9,6 +9,8 @@ import SwiftUI
 
 struct HorizontalCalendar: View {
 
+  @Environment(\.scenePhase) private var scenePhase
+
   let screenSize: CGSize
   @Binding var selectedDate: Date
 
@@ -54,6 +56,11 @@ struct HorizontalCalendar: View {
       }
     }
     .sensoryFeedback(.selection, trigger: selectedDate)
+    .onChange(of: scenePhase) { _, newPhase in
+      if newPhase == .active {
+        vm.refreshIfNeeded()
+      }
+    }
   }
   
   // MARK: - Actions

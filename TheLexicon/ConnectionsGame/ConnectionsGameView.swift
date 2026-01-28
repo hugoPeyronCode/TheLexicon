@@ -10,18 +10,71 @@ import SwiftUI
 struct ConnectionsGameView: View {
   @Environment(\.dismiss) private var dismiss
 
-  let date: Date
+  let date: Date?
+  let infiniteLevel: Int?
+  let customGroups: [WordGroup]?
 
   @State private var viewModel: ConnectionsGameViewModel
   @State private var showContinueButton: Bool = false
   @State private var showRestartAlert: Bool = false
   @State private var showExitAlert: Bool = false
 
+  // Selection state
+  @State private var selectedIndex: Int? = nil
+
+  // Animation state for swap
+  @State private var swapFirstIndex: Int? = nil
+  @State private var swapSecondIndex: Int? = nil
+  @State private var swapProgress: CGFloat = 0
+  @State private var isSwapping: Bool = false
+
+  // Haptic triggers
+  @State private var selectionHapticTrigger: Bool = false
+  @State private var swapCompletedTrigger: Bool = false
+
+  // Streak celebration
+  @State private var showStreakCelebration: Bool = false
+  @State private var isNewStreakDay: Bool = false
+
   private let columns = 4
+
+  private var isInfiniteMode: Bool {
+    infiniteLevel != nil
+  }
+
+  private var isCustomMode: Bool {
+    customGroups != nil
+  }
+
+  private var title: String {
+    if customGroups != nil {
+      return "Practice Level"
+    }
+    if let level = infiniteLevel {
+      return "Level \(level)"
+    }
+    return "Connections"
+  }
 
   init(date: Date = Date()) {
     self.date = date
+    self.infiniteLevel = nil
+    self.customGroups = nil
     self._viewModel = State(initialValue: ConnectionsGameViewModel(date: date))
+  }
+
+  init(infiniteLevel: Int) {
+    self.date = nil
+    self.infiniteLevel = infiniteLevel
+    self.customGroups = nil
+    self._viewModel = State(initialValue: ConnectionsGameViewModel(infiniteLevel: infiniteLevel))
+  }
+
+  init(customGroups: [WordGroup]) {
+    self.date = nil
+    self.infiniteLevel = nil
+    self.customGroups = customGroups
+    self._viewModel = State(initialValue: ConnectionsGameViewModel(customGroups: customGroups))
   }
 
   // Determine if scrolling is needed (more than 6 rows)
@@ -48,12 +101,6 @@ struct ConnectionsGameView: View {
                 .padding(.horizontal, AppLayout.Padding.md(geometry.size))
               Spacer()
             }
-
-            // Bottom spacer for toolbar
-            if viewModel.isGameWon {
-              Color.clear
-                .frame(height: AppLayout.Padding.lg(geometry.size) * 2 + 60)
-            }
           }
 
           // Continue button overlay (appears from bottom when game won)
@@ -78,9 +125,16 @@ struct ConnectionsGameView: View {
 
         // Center: Title
         ToolbarItem(placement: .principal) {
-          Text("Connections")
-            .fontWeight(.bold)
-            .fontDesign(.serif)
+          VStack(spacing: 0) {
+            if isInfiniteMode {
+              Text("Infinite Mode")
+                .font(.caption)
+                .foregroundStyle(AppColors.textSecondary)
+            }
+            Text(title)
+              .fontWeight(.bold)
+              .fontDesign(.serif)
+          }
         }
 
         // Trailing: Progress indicator
@@ -96,37 +150,25 @@ struct ConnectionsGameView: View {
         ToolbarItemGroup(placement: .bottomBar) {
           if !viewModel.isGameWon {
             Button {
-              withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                viewModel.shuffleWords()
-              }
+              viewModel.shuffleWords()
             } label: {
               Label("Shuffle", systemImage: "shuffle")
             }
-            .disabled(viewModel.isSwapping)
 
             Button {
               showRestartAlert = true
             } label: {
               Label("Restart", systemImage: "arrow.counterclockwise")
             }
-            .disabled(viewModel.isSwapping)
 
             Spacer()
-
-            if viewModel.selectedIndex != nil {
-              Text("Tap another card to swap")
-                .font(.caption)
-                .foregroundStyle(AppColors.textMuted)
-            }
           }
         }
       }
       .alert("Restart Game?", isPresented: $showRestartAlert) {
         Button("Cancel", role: .cancel) { }
         Button("Restart", role: .destructive) {
-          withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-            viewModel.restart()
-          }
+          viewModel.restart()
         }
       } message: {
         Text("Your progress will be lost. Are you sure you want to restart?")
@@ -137,19 +179,31 @@ struct ConnectionsGameView: View {
           dismiss()
         }
       } message: {
-        Text("Your current progress will be saved. You can continue later.")
+        Text(isInfiniteMode || isCustomMode ? "Your progress will not be saved." : "Your current progress will be saved. You can continue later.")
       }
     }
     // Haptic feedback triggers
-    .sensoryFeedback(.selection, trigger: viewModel.selectedIndex)
-    .sensoryFeedback(.impact(weight: .medium), trigger: viewModel.swapInProgress)
+    .sensoryFeedback(.impact(weight: .light), trigger: selectionHapticTrigger)
+    .sensoryFeedback(.impact(weight: .medium), trigger: swapCompletedTrigger)
     .sensoryFeedback(.success, trigger: viewModel.isGameWon)
     .onChange(of: viewModel.isGameWon) { _, isWon in
       if isWon {
+        // Record completion and check if this is a new streak day
+        isNewStreakDay = StreakManager.shared.recordCompletion()
+
         withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
           showContinueButton = true
         }
       }
+    }
+    .fullScreenCover(isPresented: $showStreakCelebration, onDismiss: {
+      dismiss()
+    }) {
+      StreakCelebrationView(
+        streakCount: StreakManager.shared.currentStreak,
+        longestStreak: StreakManager.shared.longestStreak,
+        isNewStreak: isNewStreakDay
+      )
     }
   }
 
@@ -163,7 +217,6 @@ struct ConnectionsGameView: View {
     let cardWidth = (screenSize.width - horizontalPadding - totalSpacing) / CGFloat(columns)
     let spacing = AppLayout.Spacing.xs(screenSize)
     let labelHeight = AppLayout.Spacing.lg(screenSize)
-    let rowHeight = cardHeight + labelHeight + AppLayout.Spacing.xxs(screenSize)
 
     VStack(spacing: spacing) {
       ForEach(0..<viewModel.totalRows, id: \.self) { row in
@@ -182,8 +235,8 @@ struct ConnectionsGameView: View {
                   screenSize: screenSize,
                   cardHeight: cardHeight,
                   cardWidth: cardWidth,
-                  rowHeight: rowHeight,
-                  spacing: spacing
+                  spacing: spacing,
+                  labelHeight: labelHeight
                 )
               }
             }
@@ -215,126 +268,195 @@ struct ConnectionsGameView: View {
     screenSize: CGSize,
     cardHeight: CGFloat,
     cardWidth: CGFloat,
-    rowHeight: CGFloat,
-    spacing: CGFloat
+    spacing: CGFloat,
+    labelHeight: CGFloat
   ) -> some View {
     let word = viewModel.words[index]
-    let isSelected = viewModel.isSelected(at: index)
     let isCompleted = viewModel.isRowCompleted(row)
     let completedRow = viewModel.completedRow(for: row)
     let isRecentlyCompleted = viewModel.recentlyCompletedRow == row
-    let isBeingSwapped = isSwappingCard(index)
+    let isSelected = selectedIndex == index
+    let canSelect = viewModel.canDrag(index: index) && !isSwapping
 
-    // Calculate swap offset
-    let swapOffset = calculateSwapOffset(
+    // Calculate swap animation offset
+    let animationOffset = calculateSwapOffset(
       for: index,
       cardWidth: cardWidth,
-      rowHeight: rowHeight,
-      spacing: spacing
+      cardHeight: cardHeight,
+      spacing: spacing,
+      labelHeight: labelHeight
     )
 
-    Button {
-      viewModel.selectCard(at: index)
-    } label: {
-      Text(word.text)
-        .font(AppFonts.body(screenSize))
-        .fontWeight(.medium)
-        .foregroundStyle(textColor(isCompleted: isCompleted, isSelected: isSelected))
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background {
-          RoundedRectangle(cornerRadius: AppLayout.CornerRadius.medium(screenSize))
-            .fill(cardBackground(isCompleted: isCompleted, isSelected: isSelected, completedRow: completedRow))
-        }
-        .overlay {
-          RoundedRectangle(cornerRadius: AppLayout.CornerRadius.medium(screenSize))
-            .stroke(
-              cardBorder(isCompleted: isCompleted, isSelected: isSelected, completedRow: completedRow),
-              lineWidth: isSelected ? AppLayout.Stroke.thick(screenSize) : AppLayout.Stroke.thin(screenSize)
-            )
-        }
-    }
-    .buttonStyle(.plain)
-    .frame(height: cardHeight)
-    .zIndex(isBeingSwapped ? 100 : 0)
-    .offset(swapOffset)
-    .scaleEffect(isBeingSwapped ? 1.08 : (isRecentlyCompleted ? 1.05 : (isSelected ? 1.03 : 1.0)))
+    cardContent(
+      word: word,
+      isCompleted: isCompleted,
+      completedRow: completedRow,
+      isSelected: isSelected,
+      screenSize: screenSize,
+      cardHeight: cardHeight
+    )
+    .scaleEffect(isSelected ? 1.08 : (isRecentlyCompleted ? 1.02 : 1.0))
     .shadow(
-      color: isBeingSwapped ? Color.black.opacity(0.2) : Color.clear,
-      radius: isBeingSwapped ? 8 : 0,
-      y: isBeingSwapped ? 4 : 0
+      color: isSelected ? Color.black.opacity(0.2) : Color.clear,
+      radius: isSelected ? 8 : 0,
+      y: isSelected ? 4 : 0
     )
-    .animation(.spring(response: 0.4, dampingFraction: 0.75), value: swapOffset)
-    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isBeingSwapped)
-    .animation(.easeInOut(duration: 0.15), value: isSelected)
+    .offset(animationOffset)
+    .zIndex(isSwappingCard(index) ? 100 : 0)
+    .animation(.spring(response: 0.5, dampingFraction: 0.7), value: isSelected)
     .animation(.spring(response: 0.5, dampingFraction: 0.6), value: isRecentlyCompleted)
-    .disabled(isCompleted || viewModel.isSwapping)
-  }
-
-  private func textColor(isCompleted: Bool, isSelected: Bool) -> Color {
-    if isCompleted {
-      return AppColors.textInverse
-    } else if isSelected {
-      return AppColors.buttonPrimaryText
-    } else {
-      return AppColors.textPrimary
+    .onTapGesture {
+      handleCardTap(index: index, canSelect: canSelect)
     }
   }
 
   private func isSwappingCard(_ index: Int) -> Bool {
-    guard let swap = viewModel.swapInProgress else { return false }
-    return index == swap.fromIndex || index == swap.toIndex
+    swapFirstIndex == index || swapSecondIndex == index
   }
 
   private func calculateSwapOffset(
     for index: Int,
     cardWidth: CGFloat,
-    rowHeight: CGFloat,
-    spacing: CGFloat
+    cardHeight: CGFloat,
+    spacing: CGFloat,
+    labelHeight: CGFloat
   ) -> CGSize {
-    guard let swap = viewModel.swapInProgress else {
-      return .zero
+    guard isSwapping else { return .zero }
+
+    let rowHeight = cardHeight + labelHeight + AppLayout.Spacing.xxs(.zero)
+
+    // First card moving to second position
+    if index == swapFirstIndex, let targetIndex = swapSecondIndex {
+      let fromRow = index / columns
+      let fromCol = index % columns
+      let toRow = targetIndex / columns
+      let toCol = targetIndex % columns
+
+      let deltaX = CGFloat(toCol - fromCol) * (cardWidth + spacing)
+      let deltaY = CGFloat(toRow - fromRow) * (rowHeight + spacing)
+
+      return CGSize(
+        width: deltaX * swapProgress,
+        height: deltaY * swapProgress
+      )
     }
 
-    let fromRow = swap.fromIndex / columns
-    let fromCol = swap.fromIndex % columns
-    let toRow = swap.toIndex / columns
-    let toCol = swap.toIndex % columns
+    // Second card moving to first position
+    if index == swapSecondIndex, let targetIndex = swapFirstIndex {
+      let fromRow = index / columns
+      let fromCol = index % columns
+      let toRow = targetIndex / columns
+      let toCol = targetIndex % columns
 
-    // Calculate the distance between cards
-    let colDiff = CGFloat(toCol - fromCol)
-    let rowDiff = CGFloat(toRow - fromRow)
+      let deltaX = CGFloat(toCol - fromCol) * (cardWidth + spacing)
+      let deltaY = CGFloat(toRow - fromRow) * (rowHeight + spacing)
 
-    let horizontalDistance = colDiff * (cardWidth + spacing)
-    let verticalDistance = rowDiff * (rowHeight + spacing)
-
-    if index == swap.fromIndex {
-      // Move from -> to position
-      return CGSize(width: horizontalDistance, height: verticalDistance)
-    } else if index == swap.toIndex {
-      // Move to -> from position (opposite direction)
-      return CGSize(width: -horizontalDistance, height: -verticalDistance)
+      return CGSize(
+        width: deltaX * swapProgress,
+        height: deltaY * swapProgress
+      )
     }
 
     return .zero
   }
 
-  private func cardBackground(isCompleted: Bool, isSelected: Bool, completedRow: CompletedRow?) -> Color {
-    if isCompleted, let row = completedRow {
-      return row.color
-    } else if isSelected {
-      return AppColors.accent
+  private func handleCardTap(index: Int, canSelect: Bool) {
+    guard canSelect else { return }
+
+    if let firstIndex = selectedIndex {
+      // Second tap - perform swap
+      if firstIndex == index {
+        // Tapped same card - deselect
+        selectedIndex = nil
+        selectionHapticTrigger.toggle()
+      } else if viewModel.canDrop(at: index) {
+        // Start swap animation
+        performAnimatedSwap(from: firstIndex, to: index)
+      }
     } else {
-      return AppColors.surfaceDefault
+      // First tap - select card
+      selectedIndex = index
+      selectionHapticTrigger.toggle()
     }
   }
 
-  private func cardBorder(isCompleted: Bool, isSelected: Bool, completedRow: CompletedRow?) -> Color {
+  private func performAnimatedSwap(from firstIndex: Int, to secondIndex: Int) {
+    // Setup animation state
+    swapFirstIndex = firstIndex
+    swapSecondIndex = secondIndex
+    isSwapping = true
+    selectedIndex = nil
+
+    // Animate to swapped positions
+    withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
+      swapProgress = 1.0
+    }
+
+    // After animation completes, perform the actual data swap
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+      // Perform data swap
+      viewModel.performSwap(from: firstIndex, to: secondIndex)
+
+      // Trigger completion haptic
+      swapCompletedTrigger.toggle()
+
+      // Reset animation state
+      swapProgress = 0
+      swapFirstIndex = nil
+      swapSecondIndex = nil
+      isSwapping = false
+    }
+  }
+
+  @ViewBuilder
+  private func cardContent(
+    word: Word,
+    isCompleted: Bool,
+    completedRow: CompletedRow?,
+    isSelected: Bool,
+    screenSize: CGSize,
+    cardHeight: CGFloat
+  ) -> some View {
+    Text(word.text)
+      .font(AppFonts.body(screenSize))
+      .fontWeight(.medium)
+      .foregroundStyle(textColor(isCompleted: isCompleted))
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
+      .frame(height: cardHeight)
+      .background {
+        RoundedRectangle(cornerRadius: AppLayout.CornerRadius.medium(screenSize))
+          .fill(cardBackground(isCompleted: isCompleted, completedRow: completedRow))
+      }
+      .overlay {
+        RoundedRectangle(cornerRadius: AppLayout.CornerRadius.medium(screenSize))
+          .stroke(
+            isSelected ? AppColors.accent : cardBorder(isCompleted: isCompleted, completedRow: completedRow),
+            lineWidth: isSelected ? 3 : AppLayout.Stroke.thin(screenSize)
+          )
+      }
+  }
+
+  private func textColor(isCompleted: Bool) -> Color {
+    if isCompleted {
+      return AppColors.textInverse
+    } else {
+      return AppColors.textPrimary
+    }
+  }
+
+  private func cardBackground(isCompleted: Bool, completedRow: CompletedRow?) -> Color {
     if isCompleted, let row = completedRow {
       return row.color
-    } else if isSelected {
-      return AppColors.accent
     } else {
-      return AppColors.borderDefault
+      return AppColors.accentSubtle
+    }
+  }
+
+  private func cardBorder(isCompleted: Bool, completedRow: CompletedRow?) -> Color {
+    if isCompleted, let row = completedRow {
+      return row.color
+    } else {
+      return AppColors.accentMuted
     }
   }
 
@@ -344,7 +466,7 @@ struct ConnectionsGameView: View {
   private func continueButton(screenSize: CGSize) -> some View {
     GlassEffectContainer {
       Button {
-        dismiss()
+        showStreakCelebration = true
       } label: {
         HStack(spacing: 8) {
           Image(systemName: "checkmark.circle.fill")

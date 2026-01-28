@@ -19,22 +19,24 @@ struct SessionStartButton: View {
   var body: some View {
     GlassEffectContainer {
       Button(action: action) {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
           if isCompleted {
             Image(systemName: "checkmark.circle.fill")
           }
-          Text(isCompleted ? "Completed!" : "Start Session")
+          Text(isCompleted ? "Completed!" : "Start Daily")
         }
         .fontDesign(.serif)
-        .font(.title2)
+        .font(.headline)
         .fontWeight(.semibold)
         .foregroundStyle(isCompleted ? AppColors.stateSuccess : AppColors.textInverse)
         .frame(maxWidth: .infinity)
-        .padding()
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
       }
       .tint(isCompleted ? AppColors.surfaceDefault : AppColors.accent)
       .buttonStyle(.glassProminent)
-      .padding()
+      .padding(.horizontal, 16)
+      .padding(.vertical, 12)
       .disabled(isCompleted)
     }
   }

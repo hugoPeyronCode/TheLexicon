@@ -16,12 +16,23 @@ struct PreviewContainer {
 
   init() {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    container = try! ModelContainer(for: DailyProgress.self, PuzzleState.self, configurations: config)
+    container = try! ModelContainer(
+      for: DailyProgress.self,
+      PuzzleState.self,
+      InfiniteModeProgress.self,
+      StreakData.self,
+      VocabularyProfile.self,
+      CategoryScore.self,
+      configurations: config
+    )
     context = ModelContext(container)
 
     // Configure the shared managers with preview context
     DailyProgressManager.shared.configure(with: context)
     PuzzleStateManager.shared.configure(with: context)
+    InfiniteModeProgressManager.shared.configure(with: context)
+    StreakManager.shared.configure(with: context)
+    VocabularyProfileManager.shared.configure(with: context)
 
     // Add sample data
     addSampleData()

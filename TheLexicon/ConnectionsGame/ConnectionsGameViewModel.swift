@@ -43,13 +43,6 @@ struct CompletedRow: Identifiable, Equatable {
   let color: Color
 }
 
-// MARK: - Swap State
-
-struct SwapState: Equatable {
-  let fromIndex: Int
-  let toIndex: Int
-}
-
 // MARK: - ViewModel
 
 @Observable
@@ -58,20 +51,21 @@ class ConnectionsGameViewModel {
   // MARK: - State
 
   var words: [Word] = []
-  var selectedIndex: Int? = nil
   var completedRows: [CompletedRow] = []
   var isGameWon: Bool = false
   var recentlyCompletedRow: Int? = nil
 
-  // Swap animation state
-  var swapInProgress: SwapState? = nil
-  var isSwapping: Bool = false
+  // Drag state
+  var draggingIndex: Int? = nil
 
   // MARK: - Private State
 
   private var groups: [WordGroup] = []
   private let columns: Int = 4
-  private let gameDate: Date
+  private let gameDate: Date?
+  private let infiniteLevel: Int?
+  private let customGroups: [WordGroup]?
+  private let isCustomLevel: Bool
 
   // MARK: - Computed Properties
 
@@ -83,67 +77,66 @@ class ConnectionsGameViewModel {
     groups.count
   }
 
+  var isInfiniteMode: Bool {
+    infiniteLevel != nil
+  }
+
   // MARK: - Initialization
 
   init(date: Date = Date()) {
     self.gameDate = Calendar.current.startOfDay(for: date)
+    self.infiniteLevel = nil
+    self.customGroups = nil
+    self.isCustomLevel = false
     loadLevel()
+  }
+
+  init(infiniteLevel: Int) {
+    self.gameDate = nil
+    self.infiniteLevel = infiniteLevel
+    self.customGroups = nil
+    self.isCustomLevel = false
+    loadInfiniteLevel(infiniteLevel)
+  }
+
+  init(customGroups: [WordGroup]) {
+    self.gameDate = nil
+    self.infiniteLevel = nil
+    self.customGroups = customGroups
+    self.isCustomLevel = true
+    loadCustomLevel(customGroups)
   }
 
   // MARK: - Game Actions
 
-  func selectCard(at index: Int) {
-    guard index >= 0, index < words.count else { return }
-    guard !isSwapping else { return }
-
-    // Check if this row is already completed
+  func canDrag(index: Int) -> Bool {
+    guard index >= 0, index < words.count else { return false }
     let row = index / columns
-    if completedRows.contains(where: { $0.rowIndex == row }) {
-      return
-    }
-
-    if let firstIndex = selectedIndex {
-      if firstIndex == index {
-        // Deselect if tapping same card
-        selectedIndex = nil
-      } else {
-        // Perform swap
-        performSwap(from: firstIndex, to: index)
-      }
-    } else {
-      // Select this card
-      selectedIndex = index
-    }
+    return !completedRows.contains(where: { $0.rowIndex == row })
   }
 
-  private func performSwap(from firstIndex: Int, to secondIndex: Int) {
-    isSwapping = true
-    selectedIndex = nil
-
-    // Set swap state - this triggers the animation
-    swapInProgress = SwapState(fromIndex: firstIndex, toIndex: secondIndex)
-
-    // After animation completes, swap the actual data and clear state
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
-      guard let self else { return }
-
-      // Swap data
-      self.words.swapAt(firstIndex, secondIndex)
-
-      // Clear swap state immediately (no animation for this)
-      self.swapInProgress = nil
-      self.isSwapping = false
-
-      // Save current state
-      self.savePuzzleState()
-
-      // Check for completed rows
-      self.checkForCompletedRows()
-    }
+  func canDrop(at index: Int) -> Bool {
+    guard index >= 0, index < words.count else { return false }
+    let row = index / columns
+    return !completedRows.contains(where: { $0.rowIndex == row })
   }
 
-  func isSelected(at index: Int) -> Bool {
-    selectedIndex == index
+  func performSwap(from firstIndex: Int, to secondIndex: Int) {
+    guard firstIndex != secondIndex else { return }
+    guard canDrag(index: firstIndex), canDrop(at: secondIndex) else { return }
+
+    // Swap immediately
+    words.swapAt(firstIndex, secondIndex)
+
+    // Save current state
+    savePuzzleState()
+
+    // Check for completed rows
+    checkForCompletedRows()
+  }
+
+  func isDragging(at index: Int) -> Bool {
+    draggingIndex == index
   }
 
   func isRowCompleted(_ row: Int) -> Bool {
@@ -155,8 +148,6 @@ class ConnectionsGameViewModel {
   }
 
   func shuffleWords() {
-    guard !isSwapping else { return }
-
     // Only shuffle words that are not in completed rows
     let completedIndices = Set(completedRows.flatMap { row in
       (row.rowIndex * columns)..<(row.rowIndex * columns + columns)
@@ -178,25 +169,30 @@ class ConnectionsGameViewModel {
       words[index] = uncompletedWords[i]
     }
 
-    selectedIndex = nil
-
     // Save shuffled state
     savePuzzleState()
   }
 
   func restart() {
-    // Clear saved puzzle state
-    PuzzleStateManager.shared.clearState(for: gameDate)
+    if isInfiniteMode {
+      // Reload infinite level
+      if let level = infiniteLevel {
+        loadInfiniteLevel(level)
+      }
+    } else if let date = gameDate {
+      // Clear saved puzzle state
+      PuzzleStateManager.shared.clearState(for: date)
 
-    // Reset daily progress for this date
-    DailyProgressManager.shared.updateProgress(
-      for: gameDate,
-      completedGroups: 0,
-      totalGroups: groups.count
-    )
+      // Reset daily progress for this date
+      DailyProgressManager.shared.updateProgress(
+        for: date,
+        completedGroups: 0,
+        totalGroups: groups.count
+      )
 
-    // Reload fresh level
-    loadLevel(restoreState: false)
+      // Reload fresh level
+      loadLevel(restoreState: false)
+    }
   }
 
   // MARK: - Row Checking
@@ -243,18 +239,48 @@ class ConnectionsGameViewModel {
           if completedRows.count == groups.count {
             isGameWon = true
             // Clear puzzle state on win (completed puzzle doesn't need restoring)
-            PuzzleStateManager.shared.clearState(for: gameDate)
+            if let date = gameDate {
+              PuzzleStateManager.shared.clearState(for: date)
+            }
+            // For infinite mode, advance to next level
+            if isInfiniteMode {
+              InfiniteModeProgressManager.shared.completeCurrentLevel()
+            }
+            // Award vocabulary points
+            if isCustomLevel {
+              recordCustomLevelProgress()
+            } else {
+              recordVocabularyProgress()
+            }
           }
         }
       }
     }
   }
 
+  // MARK: - Vocabulary Progress
+
+  private func recordVocabularyProgress() {
+    let themes = groups.map { $0.theme }
+    let streakMultiplier = StreakManager.shared.currentStreak
+    VocabularyProfileManager.shared.recordGameCompletion(
+      themes: themes,
+      streakMultiplier: streakMultiplier
+    )
+  }
+
+  private func recordCustomLevelProgress() {
+    // Get all word IDs from the custom level
+    let wordIds = groups.flatMap { $0.words }.map { $0.lowercased() }
+    VocabularyProfileManager.shared.recordPracticeLevelCompletion(wordIds: wordIds)
+  }
+
   // MARK: - Progress Saving
 
   private func saveProgress() {
+    guard let date = gameDate else { return }
     DailyProgressManager.shared.updateProgress(
-      for: gameDate,
+      for: date,
       completedGroups: completedRows.count,
       totalGroups: groups.count
     )
@@ -263,18 +289,22 @@ class ConnectionsGameViewModel {
   // MARK: - Puzzle State Persistence
 
   private func savePuzzleState() {
+    // Don't save state for infinite mode
+    guard let date = gameDate else { return }
+
     let wordOrder = words.map { $0.text }
     let completedIndices = completedRows.map { $0.rowIndex }
 
     PuzzleStateManager.shared.saveState(
-      for: gameDate,
+      for: date,
       wordOrder: wordOrder,
       completedRowIndices: completedIndices
     )
   }
 
   private func restorePuzzleState() -> Bool {
-    guard let savedState = PuzzleStateManager.shared.loadState(for: gameDate) else {
+    guard let date = gameDate,
+          let savedState = PuzzleStateManager.shared.loadState(for: date) else {
       return false
     }
 
@@ -285,7 +315,9 @@ class ConnectionsGameViewModel {
     guard currentWordTexts == savedWordTexts,
           savedState.wordOrder.count == words.count else {
       // State doesn't match, clear it
-      PuzzleStateManager.shared.clearState(for: gameDate)
+      if let date = gameDate {
+        PuzzleStateManager.shared.clearState(for: date)
+      }
       return false
     }
 
@@ -304,7 +336,9 @@ class ConnectionsGameViewModel {
     }
 
     guard restoredWords.count == words.count else {
-      PuzzleStateManager.shared.clearState(for: gameDate)
+      if let date = gameDate {
+        PuzzleStateManager.shared.clearState(for: date)
+      }
       return false
     }
 
@@ -346,15 +380,15 @@ class ConnectionsGameViewModel {
   // MARK: - Level Loading
 
   private func loadLevel(restoreState: Bool = true) {
-    selectedIndex = nil
+    guard let date = gameDate else { return }
+
+    draggingIndex = nil
     completedRows.removeAll()
     isGameWon = false
     recentlyCompletedRow = nil
-    swapInProgress = nil
-    isSwapping = false
 
     // Load game data for the specific date
-    groups = ConnectionsGameData.game(for: gameDate)
+    groups = ConnectionsGameData.game(for: date)
 
     // Create word objects and shuffle
     words = groups.flatMap { group in
@@ -366,5 +400,37 @@ class ConnectionsGameViewModel {
     if restoreState {
       _ = restorePuzzleState()
     }
+  }
+
+  private func loadInfiniteLevel(_ level: Int) {
+    draggingIndex = nil
+    completedRows.removeAll()
+    isGameWon = false
+    recentlyCompletedRow = nil
+
+    // Load game data for the infinite level
+    let levelData = InfiniteModeData.level(level)
+    groups = levelData.groups
+
+    // Create word objects and shuffle
+    words = groups.flatMap { group in
+      group.words.map { Word(text: $0, groupId: group.id) }
+    }
+    words.shuffle()
+  }
+
+  private func loadCustomLevel(_ customGroups: [WordGroup]) {
+    draggingIndex = nil
+    completedRows.removeAll()
+    isGameWon = false
+    recentlyCompletedRow = nil
+
+    groups = customGroups
+
+    // Create word objects and shuffle
+    words = groups.flatMap { group in
+      group.words.map { Word(text: $0, groupId: group.id) }
+    }
+    words.shuffle()
   }
 }

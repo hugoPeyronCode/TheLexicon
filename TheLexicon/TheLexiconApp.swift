@@ -15,7 +15,15 @@ struct TheLexiconApp: App {
 
   init() {
     do {
-      modelContainer = try ModelContainer(for: DailyProgress.self, PuzzleState.self)
+      modelContainer = try ModelContainer(
+        for: DailyProgress.self,
+        PuzzleState.self,
+        InfiniteModeProgress.self,
+        StreakData.self,
+        VocabularyProfile.self,
+        CategoryScore.self,
+        WantToLearnWord.self
+      )
     } catch {
       fatalError("Failed to initialize ModelContainer: \(error)")
     }
@@ -27,6 +35,10 @@ struct TheLexiconApp: App {
         .onAppear {
           DailyProgressManager.shared.configure(with: modelContainer.mainContext)
           PuzzleStateManager.shared.configure(with: modelContainer.mainContext)
+          InfiniteModeProgressManager.shared.configure(with: modelContainer.mainContext)
+          StreakManager.shared.configure(with: modelContainer.mainContext)
+          VocabularyProfileManager.shared.configure(with: modelContainer.mainContext)
+          WantToLearnManager.shared.configure(with: modelContainer.mainContext)
         }
     }
     .modelContainer(modelContainer)

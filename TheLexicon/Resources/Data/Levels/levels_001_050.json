@@ -1,0 +1,624 @@
+{
+  "levels": [
+    {
+      "id": 1,
+      "difficulty": "easy",
+      "groups": [
+        {"theme": "Primary Colors", "words": ["Red", "Blue", "Yellow", "Green"], "color": "blue", "category": "Arts"},
+        {"theme": "Pet Animals", "words": ["Dog", "Cat", "Fish", "Bird"], "color": "orange", "category": "Nature"},
+        {"theme": "Common Fruits", "words": ["Apple", "Banana", "Orange", "Grape"], "color": "green", "category": "Nature"},
+        {"theme": "Single Digits", "words": ["One", "Two", "Three", "Four"], "color": "purple", "category": "Science"}
+      ]
+    },
+    {
+      "id": 2,
+      "difficulty": "easy",
+      "groups": [
+        {"theme": "Furniture", "words": ["Chair", "Table", "Bed", "Desk"], "color": "brown", "category": "Culture"},
+        {"theme": "Weather", "words": ["Rain", "Snow", "Wind", "Sun"], "color": "cyan", "category": "Nature"},
+        {"theme": "Clothing", "words": ["Shirt", "Pants", "Shoes", "Hat"], "color": "pink", "category": "Culture"},
+        {"theme": "Seasons", "words": ["Spring", "Summer", "Fall", "Winter"], "color": "teal", "category": "Nature"}
+      ]
+    },
+    {
+      "id": 3,
+      "difficulty": "medium",
+      "groups": [
+        {"theme": "Ocean Creatures", "words": ["Shark", "Whale", "Dolphin", "Octopus"], "color": "blue", "category": "Nature"},
+        {"theme": "Kitchen Utensils", "words": ["Fork", "Spoon", "Knife", "Plate"], "color": "gray", "category": "Culture"},
+        {"theme": "Basic Emotions", "words": ["Happy", "Sad", "Angry", "Scared"], "color": "red", "category": "Emotions"},
+        {"theme": "Cardinal Directions", "words": ["North", "South", "East", "West"], "color": "teal", "category": "Science"},
+        {"theme": "Beverages", "words": ["Water", "Juice", "Milk", "Tea"], "color": "mint", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 4,
+      "difficulty": "medium",
+      "groups": [
+        {"theme": "Body Parts", "words": ["Hand", "Foot", "Head", "Arm"], "color": "red", "category": "Science"},
+        {"theme": "Musical Instruments", "words": ["Piano", "Guitar", "Drums", "Violin"], "color": "purple", "category": "Arts"},
+        {"theme": "Ball Sports", "words": ["Tennis", "Soccer", "Golf", "Rugby"], "color": "green", "category": "Culture"},
+        {"theme": "Precious Gems", "words": ["Ruby", "Diamond", "Pearl", "Emerald"], "color": "pink", "category": "Nature"},
+        {"theme": "Tree Types", "words": ["Oak", "Pine", "Maple", "Birch"], "color": "brown", "category": "Nature"}
+      ]
+    },
+    {
+      "id": 5,
+      "difficulty": "medium",
+      "groups": [
+        {"theme": "Hand Tools", "words": ["Hammer", "Saw", "Drill", "Wrench"], "color": "gray", "category": "Technology"},
+        {"theme": "Sweet Treats", "words": ["Cake", "Pie", "Cookie", "Donut"], "color": "brown", "category": "Culture"},
+        {"theme": "Garden Flowers", "words": ["Rose", "Tulip", "Daisy", "Lily"], "color": "pink", "category": "Nature"},
+        {"theme": "Precious Metals", "words": ["Gold", "Silver", "Iron", "Copper"], "color": "orange", "category": "Nature"},
+        {"theme": "Birds of Prey", "words": ["Eagle", "Owl", "Hawk", "Falcon"], "color": "indigo", "category": "Nature"},
+        {"theme": "Inner Planets", "words": ["Mars", "Venus", "Earth", "Mercury"], "color": "purple", "category": "Science"}
+      ]
+    },
+    {
+      "id": 6,
+      "difficulty": "hard",
+      "groups": [
+        {"theme": "Greek Letters", "words": ["Alpha", "Beta", "Gamma", "Delta"], "color": "blue", "category": "History"},
+        {"theme": "Card Games", "words": ["Poker", "Bridge", "Rummy", "Hearts"], "color": "red", "category": "Culture"},
+        {"theme": "Ancient Philosophers", "words": ["Plato", "Aristotle", "Socrates", "Epicurus"], "color": "purple", "category": "History"},
+        {"theme": "Chess Pieces", "words": ["Knight", "Bishop", "Rook", "Queen"], "color": "gray", "category": "Culture"},
+        {"theme": "Dance Styles", "words": ["Waltz", "Tango", "Salsa", "Ballet"], "color": "pink", "category": "Arts"},
+        {"theme": "Natural Fabrics", "words": ["Silk", "Cotton", "Wool", "Linen"], "color": "teal", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 7,
+      "difficulty": "hard",
+      "groups": [
+        {"theme": "Architectural Styles", "words": ["Gothic", "Baroque", "Modern", "Art Deco"], "color": "brown", "category": "Arts"},
+        {"theme": "Red Wine Grapes", "words": ["Merlot", "Cabernet", "Pinot", "Syrah"], "color": "red", "category": "Culture"},
+        {"theme": "Pasta Shapes", "words": ["Penne", "Fusilli", "Rigatoni", "Farfalle"], "color": "orange", "category": "Culture"},
+        {"theme": "Jazz Legends", "words": ["Miles", "Coltrane", "Monk", "Dizzy"], "color": "indigo", "category": "Arts"},
+        {"theme": "European Cheeses", "words": ["Brie", "Cheddar", "Gouda", "Gruyere"], "color": "yellow", "category": "Culture"},
+        {"theme": "Ancient Wonders", "words": ["Pyramid", "Colossus", "Lighthouse", "Gardens"], "color": "teal", "category": "History"},
+        {"theme": "Coffee Drinks", "words": ["Espresso", "Latte", "Mocha", "Cappuccino"], "color": "brown", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 8,
+      "difficulty": "hard",
+      "groups": [
+        {"theme": "Shakespeare Tragedies", "words": ["Hamlet", "Othello", "Macbeth", "Lear"], "color": "purple", "category": "Arts"},
+        {"theme": "Classic Cocktails", "words": ["Martini", "Mojito", "Negroni", "Daiquiri"], "color": "cyan", "category": "Culture"},
+        {"theme": "Mythical Creatures", "words": ["Dragon", "Phoenix", "Griffin", "Unicorn"], "color": "orange", "category": "History"},
+        {"theme": "Scientific Units", "words": ["Newton", "Joule", "Watt", "Kelvin"], "color": "blue", "category": "Science"},
+        {"theme": "Art Movements", "words": ["Cubism", "Surrealism", "Dadaism", "Fauvism"], "color": "pink", "category": "Arts"},
+        {"theme": "Culinary Herbs", "words": ["Basil", "Thyme", "Oregano", "Rosemary"], "color": "green", "category": "Culture"},
+        {"theme": "Volcanic Features", "words": ["Crater", "Caldera", "Lava", "Magma"], "color": "red", "category": "Nature"},
+        {"theme": "Cloud Types", "words": ["Cirrus", "Cumulus", "Stratus", "Nimbus"], "color": "gray", "category": "Nature"}
+      ]
+    },
+    {
+      "id": 9,
+      "difficulty": "expert",
+      "groups": [
+        {"theme": "Nobel Categories", "words": ["Physics", "Chemistry", "Medicine", "Literature"], "color": "yellow", "category": "Science"},
+        {"theme": "Logical Fallacies", "words": ["Strawman", "Ad Hominem", "Red Herring", "Bandwagon"], "color": "purple", "category": "Science"},
+        {"theme": "Renaissance Masters", "words": ["Da Vinci", "Michelangelo", "Raphael", "Botticelli"], "color": "orange", "category": "Arts"},
+        {"theme": "Economic Conditions", "words": ["Inflation", "Deflation", "Recession", "Stagflation"], "color": "green", "category": "Business"},
+        {"theme": "Cryptography Terms", "words": ["Cipher", "Hash", "Salt", "Key"], "color": "blue", "category": "Technology"},
+        {"theme": "Freudian Concepts", "words": ["Id", "Ego", "Superego", "Libido"], "color": "red", "category": "Science"},
+        {"theme": "Rhetorical Devices", "words": ["Metaphor", "Simile", "Hyperbole", "Irony"], "color": "teal", "category": "Arts"},
+        {"theme": "Music Theory", "words": ["Chord", "Scale", "Arpeggio", "Cadence"], "color": "indigo", "category": "Arts"},
+        {"theme": "Philosophy Branches", "words": ["Ethics", "Logic", "Aesthetics", "Metaphysics"], "color": "brown", "category": "History"}
+      ]
+    },
+    {
+      "id": 10,
+      "difficulty": "expert",
+      "groups": [
+        {"theme": "Legal Terms", "words": ["Tort", "Writ", "Lien", "Plea"], "color": "gray", "category": "Business"},
+        {"theme": "Typography Terms", "words": ["Serif", "Kerning", "Leading", "Tracking"], "color": "blue", "category": "Technology"},
+        {"theme": "Film Techniques", "words": ["Montage", "Dolly", "Pan", "Zoom"], "color": "purple", "category": "Arts"},
+        {"theme": "Deep Space Objects", "words": ["Nebula", "Quasar", "Pulsar", "Nova"], "color": "indigo", "category": "Science"},
+        {"theme": "Programming Paradigms", "words": ["Functional", "Object", "Procedural", "Declarative"], "color": "green", "category": "Technology"},
+        {"theme": "Poker Hands", "words": ["Flush", "Straight", "Full House", "Royal"], "color": "red", "category": "Business"},
+        {"theme": "Wine Tasting Terms", "words": ["Tannin", "Bouquet", "Body", "Finish"], "color": "brown", "category": "Culture"},
+        {"theme": "Literary Devices", "words": ["Allegory", "Motif", "Foreshadowing", "Symbolism"], "color": "orange", "category": "Arts"},
+        {"theme": "Geometry Terms", "words": ["Vertex", "Tangent", "Secant", "Chord"], "color": "cyan", "category": "Science"},
+        {"theme": "Classical Architecture", "words": ["Cornice", "Frieze", "Pediment", "Entablature"], "color": "pink", "category": "Arts"}
+      ]
+    },
+    {
+      "id": 11,
+      "difficulty": "easy",
+      "groups": [
+        {"theme": "Farm Animals", "words": ["Cow", "Pig", "Chicken", "Sheep"], "color": "green", "category": "Nature"},
+        {"theme": "School Subjects", "words": ["Math", "English", "Science", "History"], "color": "blue", "category": "Culture"},
+        {"theme": "Kitchen Appliances", "words": ["Oven", "Fridge", "Toaster", "Blender"], "color": "gray", "category": "Technology"},
+        {"theme": "Citrus Fruits", "words": ["Lemon", "Lime", "Grapefruit", "Tangerine"], "color": "yellow", "category": "Nature"}
+      ]
+    },
+    {
+      "id": 12,
+      "difficulty": "easy",
+      "groups": [
+        {"theme": "Breakfast Foods", "words": ["Eggs", "Bacon", "Toast", "Cereal"], "color": "orange", "category": "Culture"},
+        {"theme": "Vehicles", "words": ["Car", "Bus", "Train", "Plane"], "color": "blue", "category": "Technology"},
+        {"theme": "Continents", "words": ["Africa", "Asia", "Europe", "America"], "color": "green", "category": "Culture"},
+        {"theme": "Months", "words": ["January", "March", "July", "October"], "color": "teal", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 13,
+      "difficulty": "medium",
+      "groups": [
+        {"theme": "Punctuation Marks", "words": ["Period", "Comma", "Colon", "Semicolon"], "color": "gray", "category": "Arts"},
+        {"theme": "Dog Breeds", "words": ["Poodle", "Bulldog", "Beagle", "Labrador"], "color": "brown", "category": "Nature"},
+        {"theme": "Vegetables", "words": ["Carrot", "Broccoli", "Spinach", "Potato"], "color": "green", "category": "Nature"},
+        {"theme": "Olympic Sports", "words": ["Swimming", "Gymnastics", "Fencing", "Archery"], "color": "blue", "category": "Culture"},
+        {"theme": "Playing Card Suits", "words": ["Hearts", "Diamonds", "Clubs", "Spades"], "color": "red", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 14,
+      "difficulty": "medium",
+      "groups": [
+        {"theme": "Reptiles", "words": ["Snake", "Lizard", "Turtle", "Crocodile"], "color": "green", "category": "Nature"},
+        {"theme": "Planets", "words": ["Jupiter", "Saturn", "Neptune", "Uranus"], "color": "indigo", "category": "Science"},
+        {"theme": "Currencies", "words": ["Dollar", "Euro", "Pound", "Yen"], "color": "yellow", "category": "Business"},
+        {"theme": "Senses", "words": ["Sight", "Sound", "Smell", "Taste"], "color": "purple", "category": "Science"},
+        {"theme": "Royal Titles", "words": ["King", "Queen", "Prince", "Duke"], "color": "red", "category": "History"}
+      ]
+    },
+    {
+      "id": 15,
+      "difficulty": "medium",
+      "groups": [
+        {"theme": "Berries", "words": ["Strawberry", "Blueberry", "Raspberry", "Blackberry"], "color": "red", "category": "Nature"},
+        {"theme": "String Instruments", "words": ["Cello", "Viola", "Harp", "Bass"], "color": "brown", "category": "Arts"},
+        {"theme": "Ocean Features", "words": ["Reef", "Trench", "Current", "Tide"], "color": "blue", "category": "Nature"},
+        {"theme": "Martial Arts", "words": ["Karate", "Judo", "Taekwondo", "Aikido"], "color": "orange", "category": "Culture"},
+        {"theme": "Geometric Shapes", "words": ["Pentagon", "Hexagon", "Octagon", "Decagon"], "color": "purple", "category": "Science"},
+        {"theme": "Herbs & Spices", "words": ["Cinnamon", "Ginger", "Turmeric", "Cumin"], "color": "yellow", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 16,
+      "difficulty": "hard",
+      "groups": [
+        {"theme": "Roman Numerals", "words": ["I", "V", "X", "L"], "color": "gray", "category": "History"},
+        {"theme": "Computer Parts", "words": ["CPU", "RAM", "GPU", "SSD"], "color": "blue", "category": "Technology"},
+        {"theme": "Opera Terms", "words": ["Aria", "Libretto", "Soprano", "Tenor"], "color": "purple", "category": "Arts"},
+        {"theme": "Constellations", "words": ["Orion", "Leo", "Scorpio", "Gemini"], "color": "indigo", "category": "Science"},
+        {"theme": "World Capitals", "words": ["Tokyo", "Paris", "Cairo", "Lima"], "color": "green", "category": "Culture"},
+        {"theme": "Rivers", "words": ["Amazon", "Nile", "Thames", "Danube"], "color": "cyan", "category": "Nature"}
+      ]
+    },
+    {
+      "id": 17,
+      "difficulty": "hard",
+      "groups": [
+        {"theme": "Psychology Terms", "words": ["Cognition", "Behavior", "Perception", "Memory"], "color": "purple", "category": "Science"},
+        {"theme": "Film Genres", "words": ["Noir", "Western", "Thriller", "Documentary"], "color": "gray", "category": "Arts"},
+        {"theme": "Mountains", "words": ["Everest", "Kilimanjaro", "Fuji", "Denali"], "color": "brown", "category": "Nature"},
+        {"theme": "Economic Indicators", "words": ["GDP", "CPI", "Unemployment", "Interest"], "color": "green", "category": "Business"},
+        {"theme": "Literary Periods", "words": ["Romantic", "Victorian", "Modern", "Postmodern"], "color": "orange", "category": "Arts"},
+        {"theme": "Woodwind Instruments", "words": ["Flute", "Clarinet", "Oboe", "Bassoon"], "color": "teal", "category": "Arts"},
+        {"theme": "Ancient Empires", "words": ["Roman", "Persian", "Ottoman", "Byzantine"], "color": "red", "category": "History"}
+      ]
+    },
+    {
+      "id": 18,
+      "difficulty": "hard",
+      "groups": [
+        {"theme": "Philosophy Movements", "words": ["Stoicism", "Existentialism", "Nihilism", "Pragmatism"], "color": "indigo", "category": "History"},
+        {"theme": "Data Structures", "words": ["Array", "Stack", "Queue", "Tree"], "color": "blue", "category": "Technology"},
+        {"theme": "Geological Eras", "words": ["Jurassic", "Triassic", "Cretaceous", "Cambrian"], "color": "brown", "category": "Science"},
+        {"theme": "Ballet Positions", "words": ["Plié", "Relevé", "Pirouette", "Arabesque"], "color": "pink", "category": "Arts"},
+        {"theme": "Mediterranean Dishes", "words": ["Hummus", "Falafel", "Tzatziki", "Shawarma"], "color": "orange", "category": "Culture"},
+        {"theme": "Investment Types", "words": ["Stocks", "Bonds", "Futures", "Options"], "color": "green", "category": "Business"},
+        {"theme": "Norse Gods", "words": ["Odin", "Thor", "Loki", "Freya"], "color": "purple", "category": "History"},
+        {"theme": "Printing Terms", "words": ["Bleed", "CMYK", "Resolution", "Vector"], "color": "gray", "category": "Technology"}
+      ]
+    },
+    {
+      "id": 19,
+      "difficulty": "expert",
+      "groups": [
+        {"theme": "Cognitive Biases", "words": ["Anchoring", "Confirmation", "Hindsight", "Survivorship"], "color": "purple", "category": "Science"},
+        {"theme": "Statistical Terms", "words": ["Variance", "Median", "Regression", "Deviation"], "color": "blue", "category": "Science"},
+        {"theme": "Impressionist Painters", "words": ["Monet", "Renoir", "Degas", "Cézanne"], "color": "orange", "category": "Arts"},
+        {"theme": "Asian Cuisines", "words": ["Thai", "Korean", "Vietnamese", "Filipino"], "color": "red", "category": "Culture"},
+        {"theme": "Networking Protocols", "words": ["HTTP", "TCP", "UDP", "DNS"], "color": "cyan", "category": "Technology"},
+        {"theme": "Egyptian Gods", "words": ["Ra", "Anubis", "Isis", "Horus"], "color": "yellow", "category": "History"},
+        {"theme": "Orchestral Sections", "words": ["Strings", "Brass", "Woodwinds", "Percussion"], "color": "brown", "category": "Arts"},
+        {"theme": "Macroeconomics Terms", "words": ["Fiscal", "Monetary", "Supply", "Demand"], "color": "green", "category": "Business"},
+        {"theme": "Rhetoric Terms", "words": ["Ethos", "Pathos", "Logos", "Kairos"], "color": "indigo", "category": "Arts"}
+      ]
+    },
+    {
+      "id": 20,
+      "difficulty": "expert",
+      "groups": [
+        {"theme": "Quantum Concepts", "words": ["Superposition", "Entanglement", "Decoherence", "Tunneling"], "color": "purple", "category": "Science"},
+        {"theme": "Database Terms", "words": ["Schema", "Index", "Query", "Transaction"], "color": "blue", "category": "Technology"},
+        {"theme": "Classical Composers", "words": ["Bach", "Mozart", "Beethoven", "Chopin"], "color": "brown", "category": "Arts"},
+        {"theme": "Logical Operators", "words": ["AND", "OR", "NOT", "XOR"], "color": "gray", "category": "Technology"},
+        {"theme": "Wine Regions", "words": ["Bordeaux", "Burgundy", "Champagne", "Tuscany"], "color": "red", "category": "Culture"},
+        {"theme": "Philosophy Terms", "words": ["Ontology", "Epistemology", "Phenomenology", "Hermeneutics"], "color": "indigo", "category": "History"},
+        {"theme": "Market Structures", "words": ["Monopoly", "Oligopoly", "Duopoly", "Cartel"], "color": "green", "category": "Business"},
+        {"theme": "Poetry Forms", "words": ["Sonnet", "Haiku", "Limerick", "Villanelle"], "color": "pink", "category": "Arts"},
+        {"theme": "Botanical Terms", "words": ["Photosynthesis", "Transpiration", "Germination", "Pollination"], "color": "green", "category": "Nature"},
+        {"theme": "Linguistic Terms", "words": ["Phoneme", "Morpheme", "Syntax", "Semantics"], "color": "orange", "category": "Arts"}
+      ]
+    },
+    {
+      "id": 21,
+      "difficulty": "easy",
+      "groups": [
+        {"theme": "Office Supplies", "words": ["Pen", "Paper", "Stapler", "Scissors"], "color": "gray", "category": "Business"},
+        {"theme": "Zoo Animals", "words": ["Elephant", "Giraffe", "Zebra", "Monkey"], "color": "orange", "category": "Nature"},
+        {"theme": "Dairy Products", "words": ["Milk", "Cheese", "Butter", "Yogurt"], "color": "yellow", "category": "Culture"},
+        {"theme": "Weather Types", "words": ["Sunny", "Cloudy", "Rainy", "Stormy"], "color": "blue", "category": "Nature"}
+      ]
+    },
+    {
+      "id": 22,
+      "difficulty": "easy",
+      "groups": [
+        {"theme": "Beach Items", "words": ["Towel", "Sunscreen", "Umbrella", "Sandals"], "color": "yellow", "category": "Culture"},
+        {"theme": "Fast Food", "words": ["Burger", "Pizza", "Taco", "Fries"], "color": "red", "category": "Culture"},
+        {"theme": "Insects", "words": ["Bee", "Butterfly", "Ant", "Ladybug"], "color": "green", "category": "Nature"},
+        {"theme": "Materials", "words": ["Wood", "Metal", "Glass", "Plastic"], "color": "gray", "category": "Science"}
+      ]
+    },
+    {
+      "id": 23,
+      "difficulty": "medium",
+      "groups": [
+        {"theme": "Coffee Types", "words": ["Americano", "Macchiato", "Flat White", "Cortado"], "color": "brown", "category": "Culture"},
+        {"theme": "Fictional Detectives", "words": ["Holmes", "Poirot", "Marple", "Columbo"], "color": "gray", "category": "Arts"},
+        {"theme": "Bones", "words": ["Femur", "Tibia", "Humerus", "Radius"], "color": "white", "category": "Science"},
+        {"theme": "Pizza Toppings", "words": ["Pepperoni", "Mushroom", "Olive", "Anchovy"], "color": "red", "category": "Culture"},
+        {"theme": "Mythology Creatures", "words": ["Centaur", "Minotaur", "Medusa", "Cyclops"], "color": "purple", "category": "History"}
+      ]
+    },
+    {
+      "id": 24,
+      "difficulty": "medium",
+      "groups": [
+        {"theme": "Gemstones", "words": ["Amethyst", "Topaz", "Opal", "Jade"], "color": "purple", "category": "Nature"},
+        {"theme": "Wind Instruments", "words": ["Trumpet", "Trombone", "Saxophone", "Tuba"], "color": "yellow", "category": "Arts"},
+        {"theme": "Deserts", "words": ["Sahara", "Gobi", "Mojave", "Kalahari"], "color": "orange", "category": "Nature"},
+        {"theme": "Ice Cream Flavors", "words": ["Vanilla", "Chocolate", "Strawberry", "Mint"], "color": "pink", "category": "Culture"},
+        {"theme": "Astronomy Terms", "words": ["Eclipse", "Orbit", "Asteroid", "Comet"], "color": "indigo", "category": "Science"}
+      ]
+    },
+    {
+      "id": 25,
+      "difficulty": "medium",
+      "groups": [
+        {"theme": "Poker Actions", "words": ["Call", "Raise", "Fold", "Check"], "color": "red", "category": "Business"},
+        {"theme": "Garden Tools", "words": ["Shovel", "Rake", "Hoe", "Trowel"], "color": "brown", "category": "Nature"},
+        {"theme": "Social Media Actions", "words": ["Like", "Share", "Follow", "Comment"], "color": "blue", "category": "Technology"},
+        {"theme": "Dessert Types", "words": ["Tart", "Mousse", "Soufflé", "Crumble"], "color": "pink", "category": "Culture"},
+        {"theme": "Cats (Big)", "words": ["Leopard", "Cheetah", "Panther", "Cougar"], "color": "orange", "category": "Nature"},
+        {"theme": "Salad Greens", "words": ["Arugula", "Kale", "Romaine", "Watercress"], "color": "green", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 26,
+      "difficulty": "hard",
+      "groups": [
+        {"theme": "Narrative Techniques", "words": ["Flashback", "Foreshadowing", "Unreliable", "Omniscient"], "color": "purple", "category": "Arts"},
+        {"theme": "Meditation Types", "words": ["Mindfulness", "Transcendental", "Zen", "Vipassana"], "color": "teal", "category": "Culture"},
+        {"theme": "Dinosaur Types", "words": ["Velociraptor", "Triceratops", "Pterodactyl", "Stegosaurus"], "color": "green", "category": "Nature"},
+        {"theme": "Programming Concepts", "words": ["Recursion", "Iteration", "Abstraction", "Inheritance"], "color": "blue", "category": "Technology"},
+        {"theme": "Sushi Types", "words": ["Nigiri", "Sashimi", "Maki", "Temaki"], "color": "red", "category": "Culture"},
+        {"theme": "Architectural Elements", "words": ["Arch", "Column", "Dome", "Vault"], "color": "gray", "category": "Arts"}
+      ]
+    },
+    {
+      "id": 27,
+      "difficulty": "hard",
+      "groups": [
+        {"theme": "Chemical Reactions", "words": ["Oxidation", "Reduction", "Combustion", "Synthesis"], "color": "orange", "category": "Science"},
+        {"theme": "Guitar Types", "words": ["Acoustic", "Electric", "Classical", "Bass"], "color": "brown", "category": "Arts"},
+        {"theme": "Legal Documents", "words": ["Contract", "Deed", "Will", "Warrant"], "color": "gray", "category": "Business"},
+        {"theme": "Yoga Poses", "words": ["Warrior", "Cobra", "Downward Dog", "Child"], "color": "green", "category": "Culture"},
+        {"theme": "Brain Parts", "words": ["Cortex", "Cerebellum", "Hippocampus", "Amygdala"], "color": "pink", "category": "Science"},
+        {"theme": "Tea Types", "words": ["Oolong", "Darjeeling", "Earl Grey", "Matcha"], "color": "teal", "category": "Culture"},
+        {"theme": "Classical Orders", "words": ["Doric", "Ionic", "Corinthian", "Composite"], "color": "yellow", "category": "History"}
+      ]
+    },
+    {
+      "id": 28,
+      "difficulty": "hard",
+      "groups": [
+        {"theme": "Marketing Terms", "words": ["Segmentation", "Positioning", "Branding", "Conversion"], "color": "blue", "category": "Business"},
+        {"theme": "Weather Fronts", "words": ["Cold", "Warm", "Occluded", "Stationary"], "color": "cyan", "category": "Science"},
+        {"theme": "Spanish Words", "words": ["Hola", "Gracias", "Amor", "Casa"], "color": "red", "category": "Culture"},
+        {"theme": "Ship Parts", "words": ["Bow", "Stern", "Hull", "Mast"], "color": "brown", "category": "Technology"},
+        {"theme": "Painting Mediums", "words": ["Watercolor", "Acrylic", "Oil", "Tempera"], "color": "purple", "category": "Arts"},
+        {"theme": "Muscle Types", "words": ["Cardiac", "Smooth", "Skeletal", "Striated"], "color": "red", "category": "Science"},
+        {"theme": "Fabric Patterns", "words": ["Plaid", "Stripes", "Polka", "Paisley"], "color": "pink", "category": "Arts"},
+        {"theme": "Social Science Terms", "words": ["Demographics", "Culture", "Sociology", "Anthropology"], "color": "orange", "category": "Science"}
+      ]
+    },
+    {
+      "id": 29,
+      "difficulty": "expert",
+      "groups": [
+        {"theme": "Fallacy Types", "words": ["Equivocation", "Begging", "False Dichotomy", "Circular"], "color": "purple", "category": "Science"},
+        {"theme": "Investment Strategies", "words": ["Value", "Growth", "Momentum", "Index"], "color": "green", "category": "Business"},
+        {"theme": "Baroque Composers", "words": ["Vivaldi", "Handel", "Pachelbel", "Purcell"], "color": "brown", "category": "Arts"},
+        {"theme": "Cell Components", "words": ["Nucleus", "Mitochondria", "Ribosome", "Cytoplasm"], "color": "blue", "category": "Science"},
+        {"theme": "Literary Criticism", "words": ["Formalism", "Structuralism", "Deconstruction", "Feminism"], "color": "indigo", "category": "Arts"},
+        {"theme": "Cryptographic Algorithms", "words": ["RSA", "AES", "SHA", "DES"], "color": "gray", "category": "Technology"},
+        {"theme": "Wine Faults", "words": ["Corked", "Oxidized", "Volatile", "Brettanomyces"], "color": "red", "category": "Culture"},
+        {"theme": "Hindu Deities", "words": ["Vishnu", "Shiva", "Brahma", "Ganesha"], "color": "orange", "category": "History"},
+        {"theme": "Accounting Terms", "words": ["Depreciation", "Amortization", "Accrual", "Deferral"], "color": "teal", "category": "Business"}
+      ]
+    },
+    {
+      "id": 30,
+      "difficulty": "expert",
+      "groups": [
+        {"theme": "Neural Network Terms", "words": ["Perceptron", "Backpropagation", "Gradient", "Epoch"], "color": "blue", "category": "Technology"},
+        {"theme": "Plate Tectonics", "words": ["Subduction", "Divergent", "Convergent", "Transform"], "color": "brown", "category": "Science"},
+        {"theme": "Film Noir Elements", "words": ["Femme Fatale", "Voice-over", "Shadows", "Cynicism"], "color": "gray", "category": "Arts"},
+        {"theme": "Zen Concepts", "words": ["Satori", "Koan", "Zazen", "Mushin"], "color": "teal", "category": "Culture"},
+        {"theme": "Derivatives Types", "words": ["Forwards", "Swaps", "Options", "Futures"], "color": "green", "category": "Business"},
+        {"theme": "Molecular Biology", "words": ["Transcription", "Translation", "Replication", "Mutation"], "color": "purple", "category": "Science"},
+        {"theme": "Surrealist Artists", "words": ["Dalí", "Magritte", "Ernst", "Miró"], "color": "orange", "category": "Arts"},
+        {"theme": "Diplomatic Terms", "words": ["Treaty", "Ambassador", "Summit", "Sanction"], "color": "red", "category": "History"},
+        {"theme": "Pasta Sauces", "words": ["Marinara", "Alfredo", "Pesto", "Carbonara"], "color": "yellow", "category": "Culture"},
+        {"theme": "Language Families", "words": ["Romance", "Germanic", "Slavic", "Semitic"], "color": "indigo", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 31,
+      "difficulty": "easy",
+      "groups": [
+        {"theme": "Breakfast Drinks", "words": ["Coffee", "Orange Juice", "Tea", "Milk"], "color": "brown", "category": "Culture"},
+        {"theme": "Footwear", "words": ["Boots", "Sneakers", "Sandals", "Heels"], "color": "gray", "category": "Culture"},
+        {"theme": "Aquatic Animals", "words": ["Fish", "Crab", "Seal", "Penguin"], "color": "blue", "category": "Nature"},
+        {"theme": "Music Genres", "words": ["Rock", "Jazz", "Pop", "Classical"], "color": "purple", "category": "Arts"}
+      ]
+    },
+    {
+      "id": 32,
+      "difficulty": "easy",
+      "groups": [
+        {"theme": "Camping Gear", "words": ["Tent", "Sleeping Bag", "Flashlight", "Compass"], "color": "green", "category": "Culture"},
+        {"theme": "Cleaning Supplies", "words": ["Broom", "Mop", "Vacuum", "Duster"], "color": "teal", "category": "Culture"},
+        {"theme": "Tropical Fruits", "words": ["Mango", "Papaya", "Pineapple", "Coconut"], "color": "yellow", "category": "Nature"},
+        {"theme": "Metals", "words": ["Bronze", "Steel", "Aluminum", "Brass"], "color": "gray", "category": "Science"}
+      ]
+    },
+    {
+      "id": 33,
+      "difficulty": "medium",
+      "groups": [
+        {"theme": "Japanese Words", "words": ["Sensei", "Samurai", "Kimono", "Origami"], "color": "red", "category": "Culture"},
+        {"theme": "Skiing Terms", "words": ["Slalom", "Moguls", "Downhill", "Freestyle"], "color": "cyan", "category": "Culture"},
+        {"theme": "Herbs", "words": ["Parsley", "Cilantro", "Dill", "Mint"], "color": "green", "category": "Nature"},
+        {"theme": "Board Games", "words": ["Chess", "Monopoly", "Scrabble", "Risk"], "color": "brown", "category": "Culture"},
+        {"theme": "Jewelry", "words": ["Ring", "Necklace", "Bracelet", "Earring"], "color": "gold", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 34,
+      "difficulty": "medium",
+      "groups": [
+        {"theme": "Mythology Heroes", "words": ["Hercules", "Achilles", "Perseus", "Theseus"], "color": "purple", "category": "History"},
+        {"theme": "Cooking Methods", "words": ["Grill", "Roast", "Sauté", "Steam"], "color": "orange", "category": "Culture"},
+        {"theme": "Horse Breeds", "words": ["Mustang", "Arabian", "Clydesdale", "Thoroughbred"], "color": "brown", "category": "Nature"},
+        {"theme": "Architectural Shapes", "words": ["Pyramid", "Cylinder", "Sphere", "Cube"], "color": "gray", "category": "Science"},
+        {"theme": "Party Types", "words": ["Birthday", "Wedding", "Graduation", "Anniversary"], "color": "pink", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 35,
+      "difficulty": "medium",
+      "groups": [
+        {"theme": "Types of Maps", "words": ["Topographic", "Political", "Physical", "Climate"], "color": "blue", "category": "Science"},
+        {"theme": "French Words", "words": ["Bonjour", "Merci", "Croissant", "Baguette"], "color": "red", "category": "Culture"},
+        {"theme": "Percussion Instruments", "words": ["Drums", "Cymbals", "Xylophone", "Maracas"], "color": "yellow", "category": "Arts"},
+        {"theme": "Weather Instruments", "words": ["Thermometer", "Barometer", "Anemometer", "Hygrometer"], "color": "gray", "category": "Science"},
+        {"theme": "Building Materials", "words": ["Brick", "Concrete", "Marble", "Granite"], "color": "brown", "category": "Technology"},
+        {"theme": "Pasta Types", "words": ["Linguine", "Tagliatelle", "Fettuccine", "Lasagne"], "color": "orange", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 36,
+      "difficulty": "hard",
+      "groups": [
+        {"theme": "Printing Techniques", "words": ["Lithography", "Etching", "Woodcut", "Screenprint"], "color": "gray", "category": "Arts"},
+        {"theme": "Logical Gates", "words": ["NAND", "NOR", "XOR", "XNOR"], "color": "blue", "category": "Technology"},
+        {"theme": "Italian Desserts", "words": ["Tiramisu", "Panna Cotta", "Cannoli", "Gelato"], "color": "brown", "category": "Culture"},
+        {"theme": "Types of Clouds", "words": ["Alto", "Cumulonimbus", "Stratocumulus", "Cirrostratus"], "color": "white", "category": "Nature"},
+        {"theme": "Financial Ratios", "words": ["PE Ratio", "ROE", "ROI", "EBITDA"], "color": "green", "category": "Business"},
+        {"theme": "African Countries", "words": ["Nigeria", "Kenya", "Ghana", "Morocco"], "color": "orange", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 37,
+      "difficulty": "hard",
+      "groups": [
+        {"theme": "Psychological Disorders", "words": ["Anxiety", "Depression", "PTSD", "OCD"], "color": "purple", "category": "Science"},
+        {"theme": "Wine Grape Varieties", "words": ["Riesling", "Sauvignon", "Zinfandel", "Grenache"], "color": "red", "category": "Culture"},
+        {"theme": "Fabric Types", "words": ["Denim", "Velvet", "Corduroy", "Tweed"], "color": "indigo", "category": "Culture"},
+        {"theme": "Astronomy Events", "words": ["Supernova", "Eclipse", "Meteor Shower", "Conjunction"], "color": "purple", "category": "Science"},
+        {"theme": "Economic Systems", "words": ["Capitalism", "Socialism", "Communism", "Feudalism"], "color": "red", "category": "Business"},
+        {"theme": "Cake Types", "words": ["Sponge", "Pound", "Chiffon", "Bundt"], "color": "pink", "category": "Culture"},
+        {"theme": "Grammar Terms", "words": ["Noun", "Verb", "Adjective", "Adverb"], "color": "blue", "category": "Arts"}
+      ]
+    },
+    {
+      "id": 38,
+      "difficulty": "hard",
+      "groups": [
+        {"theme": "Sociological Concepts", "words": ["Norms", "Values", "Roles", "Status"], "color": "teal", "category": "Science"},
+        {"theme": "Architecture Periods", "words": ["Renaissance", "Neoclassical", "Romanesque", "Brutalism"], "color": "gray", "category": "Arts"},
+        {"theme": "Bread Types", "words": ["Sourdough", "Ciabatta", "Focaccia", "Brioche"], "color": "brown", "category": "Culture"},
+        {"theme": "Database Types", "words": ["Relational", "NoSQL", "Graph", "Document"], "color": "blue", "category": "Technology"},
+        {"theme": "Vitamins", "words": ["A", "B12", "C", "D"], "color": "orange", "category": "Science"},
+        {"theme": "Latin Phrases", "words": ["Carpe Diem", "Et Cetera", "Ad Hoc", "Veni Vidi Vici"], "color": "purple", "category": "Culture"},
+        {"theme": "Ocean Zones", "words": ["Epipelagic", "Mesopelagic", "Bathypelagic", "Abyssal"], "color": "cyan", "category": "Nature"},
+        {"theme": "Knitting Terms", "words": ["Purl", "Cast On", "Bind Off", "Yarn Over"], "color": "pink", "category": "Arts"}
+      ]
+    },
+    {
+      "id": 39,
+      "difficulty": "expert",
+      "groups": [
+        {"theme": "Rhetorical Appeals", "words": ["Ethos", "Pathos", "Logos", "Kairos"], "color": "purple", "category": "Arts"},
+        {"theme": "Software Design Patterns", "words": ["Singleton", "Factory", "Observer", "Adapter"], "color": "blue", "category": "Technology"},
+        {"theme": "Cardiac Terms", "words": ["Systole", "Diastole", "Atrium", "Ventricle"], "color": "red", "category": "Science"},
+        {"theme": "Theater Types", "words": ["Tragedy", "Comedy", "Farce", "Melodrama"], "color": "orange", "category": "Arts"},
+        {"theme": "Bond Types", "words": ["Corporate", "Municipal", "Treasury", "Junk"], "color": "green", "category": "Business"},
+        {"theme": "Meteorology Terms", "words": ["Isobar", "Front", "Precipitation", "Humidity"], "color": "cyan", "category": "Science"},
+        {"theme": "Philosophical Schools", "words": ["Empiricism", "Rationalism", "Idealism", "Materialism"], "color": "indigo", "category": "History"},
+        {"theme": "Wine Descriptors", "words": ["Dry", "Oaky", "Fruity", "Tannic"], "color": "red", "category": "Culture"},
+        {"theme": "Genetic Terms", "words": ["Allele", "Genome", "Phenotype", "Genotype"], "color": "teal", "category": "Science"}
+      ]
+    },
+    {
+      "id": 40,
+      "difficulty": "expert",
+      "groups": [
+        {"theme": "Cryptographic Concepts", "words": ["Asymmetric", "Symmetric", "Hash", "Nonce"], "color": "gray", "category": "Technology"},
+        {"theme": "Stock Market Terms", "words": ["Bull", "Bear", "Short", "Long"], "color": "green", "category": "Business"},
+        {"theme": "Opera Voices", "words": ["Soprano", "Alto", "Tenor", "Baritone"], "color": "purple", "category": "Arts"},
+        {"theme": "Ecosystem Types", "words": ["Tundra", "Savanna", "Taiga", "Chaparral"], "color": "green", "category": "Nature"},
+        {"theme": "Philosophy Terms", "words": ["A Priori", "A Posteriori", "Tabula Rasa", "Cogito"], "color": "indigo", "category": "History"},
+        {"theme": "Machine Learning", "words": ["Supervised", "Unsupervised", "Reinforcement", "Transfer"], "color": "blue", "category": "Technology"},
+        {"theme": "Architectural Movements", "words": ["Deconstructivism", "Metabolism", "Parametricism", "Regionalism"], "color": "brown", "category": "Arts"},
+        {"theme": "Monetary Policy Tools", "words": ["Reserve", "Discount", "Open Market", "Quantitative"], "color": "yellow", "category": "Business"},
+        {"theme": "Japanese Art Forms", "words": ["Ikebana", "Bonsai", "Ukiyo-e", "Kintsugi"], "color": "red", "category": "Arts"},
+        {"theme": "Immunology Terms", "words": ["Antibody", "Antigen", "T-Cell", "B-Cell"], "color": "pink", "category": "Science"}
+      ]
+    },
+    {
+      "id": 41,
+      "difficulty": "easy",
+      "groups": [
+        {"theme": "Candy Types", "words": ["Chocolate", "Gummy", "Lollipop", "Caramel"], "color": "brown", "category": "Culture"},
+        {"theme": "Playground Equipment", "words": ["Swing", "Slide", "Seesaw", "Sandbox"], "color": "yellow", "category": "Culture"},
+        {"theme": "Types of Bags", "words": ["Backpack", "Purse", "Briefcase", "Tote"], "color": "blue", "category": "Culture"},
+        {"theme": "Garden Insects", "words": ["Bee", "Ladybug", "Butterfly", "Dragonfly"], "color": "green", "category": "Nature"}
+      ]
+    },
+    {
+      "id": 42,
+      "difficulty": "easy",
+      "groups": [
+        {"theme": "Fast Food Chains", "words": ["McDonald's", "Burger King", "Wendy's", "KFC"], "color": "red", "category": "Business"},
+        {"theme": "Video Game Genres", "words": ["Puzzle", "Action", "Strategy", "Racing"], "color": "purple", "category": "Technology"},
+        {"theme": "Home Rooms", "words": ["Bedroom", "Kitchen", "Bathroom", "Living Room"], "color": "teal", "category": "Culture"},
+        {"theme": "Outdoor Activities", "words": ["Hiking", "Camping", "Fishing", "Swimming"], "color": "green", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 43,
+      "difficulty": "medium",
+      "groups": [
+        {"theme": "Mexican Foods", "words": ["Burrito", "Enchilada", "Quesadilla", "Tamale"], "color": "orange", "category": "Culture"},
+        {"theme": "Classical Music Terms", "words": ["Symphony", "Concerto", "Sonata", "Overture"], "color": "purple", "category": "Arts"},
+        {"theme": "Rodent Types", "words": ["Mouse", "Rat", "Hamster", "Guinea Pig"], "color": "gray", "category": "Nature"},
+        {"theme": "Renewable Energy", "words": ["Solar", "Wind", "Hydro", "Geothermal"], "color": "green", "category": "Science"},
+        {"theme": "Writing Instruments", "words": ["Pencil", "Pen", "Marker", "Crayon"], "color": "yellow", "category": "Arts"}
+      ]
+    },
+    {
+      "id": 44,
+      "difficulty": "medium",
+      "groups": [
+        {"theme": "Natural Disasters", "words": ["Earthquake", "Tsunami", "Volcano", "Avalanche"], "color": "red", "category": "Nature"},
+        {"theme": "Programming Languages", "words": ["Python", "Java", "JavaScript", "Ruby"], "color": "blue", "category": "Technology"},
+        {"theme": "Furniture Wood Types", "words": ["Mahogany", "Walnut", "Cherry", "Teak"], "color": "brown", "category": "Nature"},
+        {"theme": "Salad Dressings", "words": ["Ranch", "Italian", "Vinaigrette", "Caesar"], "color": "green", "category": "Culture"},
+        {"theme": "Track and Field Events", "words": ["Sprint", "Hurdles", "Javelin", "Discus"], "color": "orange", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 45,
+      "difficulty": "medium",
+      "groups": [
+        {"theme": "Greek Islands", "words": ["Crete", "Santorini", "Mykonos", "Rhodes"], "color": "blue", "category": "Culture"},
+        {"theme": "Cooking Oils", "words": ["Olive", "Canola", "Coconut", "Sesame"], "color": "yellow", "category": "Culture"},
+        {"theme": "Astronomy Objects", "words": ["Galaxy", "Star", "Planet", "Moon"], "color": "indigo", "category": "Science"},
+        {"theme": "Art Supplies", "words": ["Canvas", "Brush", "Palette", "Easel"], "color": "purple", "category": "Arts"},
+        {"theme": "Types of Shoes", "words": ["Loafer", "Oxford", "Derby", "Brogue"], "color": "brown", "category": "Culture"},
+        {"theme": "Sailing Terms", "words": ["Port", "Starboard", "Bow", "Stern"], "color": "cyan", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 46,
+      "difficulty": "hard",
+      "groups": [
+        {"theme": "Cocktail Ingredients", "words": ["Vermouth", "Bitters", "Grenadine", "Triple Sec"], "color": "red", "category": "Culture"},
+        {"theme": "Architecture Terms", "words": ["Buttress", "Spire", "Nave", "Apse"], "color": "gray", "category": "Arts"},
+        {"theme": "Stock Market Indices", "words": ["Dow", "NASDAQ", "S&P", "FTSE"], "color": "green", "category": "Business"},
+        {"theme": "Astrophysics Terms", "words": ["Black Hole", "Dark Matter", "Redshift", "Singularity"], "color": "purple", "category": "Science"},
+        {"theme": "Fabric Weaves", "words": ["Twill", "Satin", "Plain", "Jacquard"], "color": "pink", "category": "Arts"},
+        {"theme": "Indian Dishes", "words": ["Biryani", "Tikka", "Korma", "Vindaloo"], "color": "orange", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 47,
+      "difficulty": "hard",
+      "groups": [
+        {"theme": "Economic Indicators", "words": ["Inflation", "Unemployment", "Interest Rate", "Trade Balance"], "color": "green", "category": "Business"},
+        {"theme": "Art Techniques", "words": ["Impasto", "Sfumato", "Tenebrism", "Pointillism"], "color": "purple", "category": "Arts"},
+        {"theme": "Volcano Types", "words": ["Shield", "Composite", "Cinder", "Caldera"], "color": "red", "category": "Nature"},
+        {"theme": "Network Topology", "words": ["Star", "Ring", "Bus", "Mesh"], "color": "blue", "category": "Technology"},
+        {"theme": "Indian Spices", "words": ["Cardamom", "Turmeric", "Cumin", "Coriander"], "color": "yellow", "category": "Culture"},
+        {"theme": "Theatrical Terms", "words": ["Soliloquy", "Monologue", "Aside", "Dialogue"], "color": "orange", "category": "Arts"},
+        {"theme": "Marine Ecosystems", "words": ["Coral Reef", "Kelp Forest", "Estuary", "Mangrove"], "color": "cyan", "category": "Nature"}
+      ]
+    },
+    {
+      "id": 48,
+      "difficulty": "hard",
+      "groups": [
+        {"theme": "Particle Physics", "words": ["Quark", "Lepton", "Boson", "Fermion"], "color": "purple", "category": "Science"},
+        {"theme": "Contract Terms", "words": ["Clause", "Addendum", "Amendment", "Provision"], "color": "gray", "category": "Business"},
+        {"theme": "Scandinavian Countries", "words": ["Sweden", "Norway", "Denmark", "Finland"], "color": "blue", "category": "Culture"},
+        {"theme": "Whiskey Types", "words": ["Bourbon", "Scotch", "Rye", "Irish"], "color": "brown", "category": "Culture"},
+        {"theme": "Paint Finishes", "words": ["Matte", "Gloss", "Satin", "Eggshell"], "color": "white", "category": "Arts"},
+        {"theme": "Tooth Types", "words": ["Incisor", "Canine", "Molar", "Premolar"], "color": "white", "category": "Science"},
+        {"theme": "Hedge Fund Strategies", "words": ["Long-Short", "Arbitrage", "Macro", "Event-Driven"], "color": "green", "category": "Business"},
+        {"theme": "Korean Dishes", "words": ["Bibimbap", "Bulgogi", "Kimchi", "Japchae"], "color": "red", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 49,
+      "difficulty": "expert",
+      "groups": [
+        {"theme": "Linguistic Concepts", "words": ["Pragmatics", "Phonology", "Morphology", "Lexicon"], "color": "indigo", "category": "Arts"},
+        {"theme": "Machine Learning Algorithms", "words": ["Random Forest", "Neural Network", "SVM", "K-Means"], "color": "blue", "category": "Technology"},
+        {"theme": "Financial Derivatives", "words": ["Call", "Put", "Swap", "Forward"], "color": "green", "category": "Business"},
+        {"theme": "Organic Chemistry", "words": ["Alkane", "Alkene", "Alkyne", "Aromatic"], "color": "purple", "category": "Science"},
+        {"theme": "Renaissance Art", "words": ["Sfumato", "Contrapposto", "Chiaroscuro", "Perspective"], "color": "orange", "category": "Arts"},
+        {"theme": "Diplomatic Titles", "words": ["Ambassador", "Consul", "Attaché", "Chargé"], "color": "red", "category": "History"},
+        {"theme": "Epistemology Terms", "words": ["Empiricism", "Rationalism", "Skepticism", "Foundationalism"], "color": "teal", "category": "History"},
+        {"theme": "Audio Engineering", "words": ["Compression", "Equalization", "Reverb", "Distortion"], "color": "gray", "category": "Technology"},
+        {"theme": "Buddhist Concepts", "words": ["Dharma", "Karma", "Nirvana", "Sangha"], "color": "yellow", "category": "Culture"}
+      ]
+    },
+    {
+      "id": 50,
+      "difficulty": "expert",
+      "groups": [
+        {"theme": "Thermodynamics Laws", "words": ["Zeroth", "First", "Second", "Third"], "color": "red", "category": "Science"},
+        {"theme": "API Types", "words": ["REST", "GraphQL", "SOAP", "gRPC"], "color": "blue", "category": "Technology"},
+        {"theme": "Psychotherapy Approaches", "words": ["CBT", "Psychoanalysis", "Gestalt", "Humanistic"], "color": "purple", "category": "Science"},
+        {"theme": "Bond Rating Agencies", "words": ["Moody's", "S&P", "Fitch", "DBRS"], "color": "green", "category": "Business"},
+        {"theme": "Poetic Meters", "words": ["Iambic", "Trochaic", "Anapestic", "Dactylic"], "color": "orange", "category": "Arts"},
+        {"theme": "Anthropological Terms", "words": ["Kinship", "Liminality", "Totemism", "Mana"], "color": "brown", "category": "History"},
+        {"theme": "Audio Codecs", "words": ["MP3", "FLAC", "AAC", "Opus"], "color": "cyan", "category": "Technology"},
+        {"theme": "Economic Schools", "words": ["Keynesian", "Austrian", "Monetarist", "Classical"], "color": "gray", "category": "Business"},
+        {"theme": "Microbiome Terms", "words": ["Probiotic", "Prebiotic", "Symbiotic", "Pathogenic"], "color": "teal", "category": "Science"},
+        {"theme": "Japanese Tea Ceremony", "words": ["Matcha", "Chawan", "Chasen", "Tatami"], "color": "green", "category": "Culture"}
+      ]
+    }
+  ]
+}
