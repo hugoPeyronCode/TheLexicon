@@ -53,6 +53,7 @@ struct VocabularyProfileCard: View {
               .font(AppFonts.title2(screenSize))
               .fontWeight(.black)
               .foregroundStyle(AppColors.accent)
+              .contentTransition(.numericText())
           }
 
           VStack(alignment: .leading, spacing: 2) {
@@ -63,6 +64,7 @@ struct VocabularyProfileCard: View {
               .font(AppFonts.title3(screenSize))
               .fontWeight(.bold)
               .foregroundStyle(AppColors.textPrimary)
+              .contentTransition(.numericText())
           }
         }
       }

@@ -143,6 +143,7 @@ struct ConnectionsGameView: View {
             .font(.subheadline)
             .fontWeight(.medium)
             .foregroundStyle(AppColors.textSecondary)
+            .contentTransition(.numericText())
         }
       }
       .toolbar {
@@ -418,9 +419,12 @@ struct ConnectionsGameView: View {
     cardHeight: CGFloat
   ) -> some View {
     Text(word.text)
-      .font(AppFonts.body(screenSize))
+      .font(fontForWord(word.text, screenSize: screenSize))
       .fontWeight(.medium)
+      .minimumScaleFactor(0.5)
+      .lineLimit(1)
       .foregroundStyle(textColor(isCompleted: isCompleted))
+      .padding(.horizontal, 4)
       .frame(maxWidth: .infinity, maxHeight: .infinity)
       .frame(height: cardHeight)
       .background {
@@ -434,6 +438,18 @@ struct ConnectionsGameView: View {
             lineWidth: isSelected ? 3 : AppLayout.Stroke.thin(screenSize)
           )
       }
+  }
+
+  private func fontForWord(_ text: String, screenSize: CGSize) -> Font {
+    // Use smaller font for longer words
+    let length = text.count
+    if length <= 6 {
+      return AppFonts.body(screenSize)
+    } else if length <= 9 {
+      return AppFonts.footnote(screenSize)
+    } else {
+      return AppFonts.caption(screenSize)
+    }
   }
 
   private func textColor(isCompleted: Bool) -> Color {
@@ -466,7 +482,7 @@ struct ConnectionsGameView: View {
   private func continueButton(screenSize: CGSize) -> some View {
     GlassEffectContainer {
       Button {
-        showStreakCelebration = true
+        handleContinue()
       } label: {
         HStack(spacing: 8) {
           Image(systemName: "checkmark.circle.fill")
@@ -482,6 +498,15 @@ struct ConnectionsGameView: View {
       .tint(AppColors.stateSuccess)
       .buttonStyle(.glassProminent)
       .padding()
+    }
+  }
+
+  private func handleContinue() {
+    // Only show streak celebration for daily mode when it's a new streak day
+    if !isInfiniteMode && !isCustomMode && isNewStreakDay {
+      showStreakCelebration = true
+    } else {
+      dismiss()
     }
   }
 }

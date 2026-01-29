@@ -10,20 +10,20 @@ import SwiftUI
 struct WordRevisionView: View {
   @Environment(\.dismiss) private var dismiss
 
-  @State private var currentIndex: Int = 0
-  @State private var dragOffset: CGFloat = 0
-  @State private var showDefinition: Bool = false
+  @State private var currentPage: Int = 0
   @State private var selectedCategory: SemanticCategory?
   @State private var showFilters: Bool = false
   @State private var showCustomLevelAlert: Bool = false
   @State private var showCustomGame: Bool = false
   @State private var customGroups: [WordGroup] = []
+  @State private var shuffledWords: [WordDefinition] = []
+  @State private var hasInitialized: Bool = false
 
   private var wantToLearnManager: WantToLearnManager {
     WantToLearnManager.shared
   }
 
-  private var allWords: [WordDefinition] {
+  private var filteredWords: [WordDefinition] {
     var words = WordDatabase.shared.harderWords
 
     if let category = selectedCategory {
@@ -33,49 +33,23 @@ struct WordRevisionView: View {
     return words
   }
 
-  private var currentWord: WordDefinition? {
-    guard currentIndex >= 0 && currentIndex < allWords.count else { return nil }
-    return allWords[currentIndex]
-  }
-
-  private var isCurrentWordMarked: Bool {
-    guard let word = currentWord else { return false }
-    return wantToLearnManager.isMarked(word.id)
-  }
-
   var body: some View {
     NavigationStack {
-      GeometryReader { geometry in
+      GeometryReader { screen in
         VStack(spacing: 0) {
-          // Progress indicator
+          // Progress header
           progressHeader
 
-          // Main card area
-          ZStack {
-            if let word = currentWord {
-              WordCard(
-                word: word,
-                showDefinition: showDefinition,
-                isMarked: isCurrentWordMarked,
-                screenSize: geometry.size
-              )
-              .offset(x: dragOffset)
-              .rotationEffect(.degrees(Double(dragOffset) / 20))
-              .gesture(swipeGesture)
-              .onTapGesture {
-                withAnimation(.spring(response: 0.3)) {
-                  showDefinition.toggle()
-                }
-              }
-            } else {
-              emptyState
-            }
+          // TikTok-style scrolling content
+          if shuffledWords.isEmpty {
+            emptyState
+              .frame(maxWidth: .infinity, maxHeight: .infinity)
+          } else {
+            scrollingContent(screen: screen)
           }
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-          .padding()
 
           // Bottom controls
-          bottomControls(screenSize: geometry.size)
+          bottomControls
         }
       }
       .background(AppColors.backgroundPrimary)
@@ -96,10 +70,20 @@ struct WordRevisionView: View {
         }
 
         ToolbarItem(placement: .topBarTrailing) {
-          Button {
-            showFilters.toggle()
-          } label: {
-            Image(systemName: selectedCategory != nil ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+          HStack(spacing: 12) {
+            // Shuffle button
+            Button {
+              shuffleWords()
+            } label: {
+              Image(systemName: "shuffle")
+            }
+
+            // Filter button
+            Button {
+              showFilters.toggle()
+            } label: {
+              Image(systemName: selectedCategory != nil ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+            }
           }
         }
       }
@@ -123,7 +107,41 @@ struct WordRevisionView: View {
           showCustomLevelAlert = true
         }
       }
+      .onChange(of: selectedCategory) { _, _ in
+        shuffleWords()
+        currentPage = 0
+      }
+      .onAppear {
+        if !hasInitialized {
+          shuffleWords()
+          hasInitialized = true
+        }
+      }
     }
+  }
+
+  // MARK: - TikTok-style Scrolling Content
+
+  private func scrollingContent(screen: GeometryProxy) -> some View {
+    TabView(selection: $currentPage) {
+      ForEach(Array(shuffledWords.enumerated()), id: \.element.id) { index, word in
+        WordCardView(
+          word: word,
+          isMarked: wantToLearnManager.isMarked(word.id),
+          onToggleMark: {
+            wantToLearnManager.toggleWord(word.id)
+          }
+        )
+        .frame(width: screen.size.width, height: screen.size.height - 180) // Account for header and controls
+        .rotationEffect(Angle(degrees: -90))
+        .sensoryFeedback(.impact(flexibility: .soft), trigger: currentPage)
+        .tag(index)
+      }
+    }
+    .frame(width: screen.size.height - 180, height: screen.size.width)
+    .rotationEffect(.degrees(90), anchor: .topLeading)
+    .offset(x: screen.size.width)
+    .tabViewStyle(.page(indexDisplayMode: .never))
   }
 
   // MARK: - Progress Header
@@ -131,9 +149,10 @@ struct WordRevisionView: View {
   private var progressHeader: some View {
     VStack(spacing: 8) {
       HStack {
-        Text("\(currentIndex + 1) / \(allWords.count)")
+        Text("\(currentPage + 1) / \(shuffledWords.count)")
           .font(.caption)
           .foregroundStyle(AppColors.textSecondary)
+          .contentTransition(.numericText())
 
         Spacer()
 
@@ -145,6 +164,7 @@ struct WordRevisionView: View {
             Text("\(wantToLearnManager.pendingCount)")
               .font(.caption)
               .fontWeight(.semibold)
+              .contentTransition(.numericText())
           }
           .foregroundStyle(AppColors.accent)
           .padding(.horizontal, 8)
@@ -165,61 +185,27 @@ struct WordRevisionView: View {
 
           RoundedRectangle(cornerRadius: 2)
             .fill(AppColors.accent)
-            .frame(width: geo.size.width * CGFloat(currentIndex + 1) / CGFloat(max(allWords.count, 1)), height: 4)
+            .frame(width: geo.size.width * CGFloat(currentPage + 1) / CGFloat(max(shuffledWords.count, 1)), height: 4)
+            .animation(.easeInOut(duration: 0.2), value: currentPage)
         }
       }
       .frame(height: 4)
     }
-    .padding()
+    .padding(.horizontal)
+    .padding(.top, 8)
   }
 
   // MARK: - Bottom Controls
 
-  private func bottomControls(screenSize: CGSize) -> some View {
-    VStack(spacing: 16) {
+  private var bottomControls: some View {
+    VStack(spacing: 12) {
       // Swipe hint
-      Text(showDefinition ? "Tap to hide definition" : "Tap to reveal definition")
-        .font(.caption)
-        .foregroundStyle(AppColors.textSecondary)
-
-      // Action buttons
-      HStack(spacing: 24) {
-        // Previous button
-        Button {
-          goToPrevious()
-        } label: {
-          Image(systemName: "arrow.left.circle.fill")
-            .font(.system(size: 44))
-            .foregroundStyle(currentIndex > 0 ? AppColors.textSecondary : AppColors.borderMuted)
-        }
-        .disabled(currentIndex == 0)
-
-        // Want to learn button
-        Button {
-          toggleWantToLearn()
-        } label: {
-          VStack(spacing: 4) {
-            Image(systemName: isCurrentWordMarked ? "bookmark.fill" : "bookmark")
-              .font(.system(size: 32))
-              .foregroundStyle(isCurrentWordMarked ? AppColors.accent : AppColors.textSecondary)
-
-            Text(isCurrentWordMarked ? "Marked" : "Learn")
-              .font(.caption2)
-              .foregroundStyle(isCurrentWordMarked ? AppColors.accent : AppColors.textSecondary)
-          }
-        }
-        .frame(width: 60)
-
-        // Next button
-        Button {
-          goToNext()
-        } label: {
-          Image(systemName: "arrow.right.circle.fill")
-            .font(.system(size: 44))
-            .foregroundStyle(currentIndex < allWords.count - 1 ? AppColors.accent : AppColors.borderMuted)
-        }
-        .disabled(currentIndex >= allWords.count - 1)
+      HStack(spacing: 4) {
+        Image(systemName: "arrow.up.arrow.down")
+        Text("Swipe to browse")
       }
+      .font(.caption)
+      .foregroundStyle(AppColors.textSecondary)
 
       // Custom level prompt
       if wantToLearnManager.canCreateCustomLevel {
@@ -254,7 +240,6 @@ struct WordRevisionView: View {
         Section("Category") {
           Button {
             selectedCategory = nil
-            currentIndex = 0
             showFilters = false
           } label: {
             HStack {
@@ -269,9 +254,9 @@ struct WordRevisionView: View {
           .foregroundStyle(AppColors.textPrimary)
 
           ForEach(SemanticCategory.allCases, id: \.self) { category in
+            let count = WordDatabase.shared.harderWords.filter { $0.category == category.rawValue }.count
             Button {
               selectedCategory = category
-              currentIndex = 0
               showFilters = false
             } label: {
               HStack {
@@ -280,6 +265,9 @@ struct WordRevisionView: View {
                   .frame(width: 24)
                 Text(category.rawValue)
                 Spacer()
+                Text("\(count)")
+                  .font(.caption)
+                  .foregroundStyle(AppColors.textSecondary)
                 if selectedCategory == category {
                   Image(systemName: "checkmark")
                     .foregroundStyle(AppColors.accent)
@@ -321,96 +309,74 @@ struct WordRevisionView: View {
     }
   }
 
-  // MARK: - Swipe Gesture
-
-  private var swipeGesture: some Gesture {
-    DragGesture()
-      .onChanged { value in
-        dragOffset = value.translation.width
-      }
-      .onEnded { value in
-        let threshold: CGFloat = 100
-        withAnimation(.spring(response: 0.3)) {
-          if value.translation.width > threshold && currentIndex > 0 {
-            goToPrevious()
-          } else if value.translation.width < -threshold && currentIndex < allWords.count - 1 {
-            goToNext()
-          }
-          dragOffset = 0
-        }
-      }
-  }
-
   // MARK: - Actions
 
-  private func goToNext() {
-    withAnimation(.spring(response: 0.3)) {
-      if currentIndex < allWords.count - 1 {
-        currentIndex += 1
-        showDefinition = false
-      }
-    }
-  }
-
-  private func goToPrevious() {
-    withAnimation(.spring(response: 0.3)) {
-      if currentIndex > 0 {
-        currentIndex -= 1
-        showDefinition = false
-      }
-    }
-  }
-
-  private func toggleWantToLearn() {
-    guard let word = currentWord else { return }
-    wantToLearnManager.toggleWord(word.id)
+  private func shuffleWords() {
+    shuffledWords = filteredWords.shuffled()
   }
 }
 
-// MARK: - Word Card
+// MARK: - Word Card View
 
-private struct WordCard: View {
+private struct WordCardView: View {
   let word: WordDefinition
-  let showDefinition: Bool
   let isMarked: Bool
-  let screenSize: CGSize
+  let onToggleMark: () -> Void
+
+  @State private var showDefinition: Bool = false
 
   private var category: SemanticCategory? {
     SemanticCategory(rawValue: word.category)
   }
 
   var body: some View {
-    VStack(spacing: 0) {
-      // Front side (word only)
-      if !showDefinition {
-        frontSide
-      } else {
-        // Back side (with definition)
-        backSide
-      }
-    }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background {
+    ZStack {
+      // Card background
       RoundedRectangle(cornerRadius: 24)
         .fill(AppColors.surfaceDefault)
         .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
+
+      // Card content
+      VStack(spacing: 0) {
+        if !showDefinition {
+          frontSide
+        } else {
+          backSide
+        }
+      }
+
+      // Bookmark overlay
+      VStack {
+        HStack {
+          Spacer()
+          Button {
+            onToggleMark()
+          } label: {
+            Image(systemName: isMarked ? "bookmark.fill" : "bookmark")
+              .font(.title2)
+              .foregroundStyle(isMarked ? AppColors.accent : AppColors.textSecondary)
+              .padding()
+          }
+        }
+        Spacer()
+      }
     }
     .overlay {
       RoundedRectangle(cornerRadius: 24)
         .stroke(isMarked ? AppColors.accent : AppColors.borderMuted, lineWidth: isMarked ? 2 : 1)
     }
-    .overlay(alignment: .topTrailing) {
-      if isMarked {
-        Image(systemName: "bookmark.fill")
-          .font(.title2)
-          .foregroundStyle(AppColors.accent)
-          .padding()
+    .padding(.horizontal, 20)
+    .padding(.vertical, 10)
+    .contentShape(Rectangle())
+    .onTapGesture {
+      withAnimation(.spring(response: 0.3)) {
+        showDefinition.toggle()
       }
     }
   }
 
   private var frontSide: some View {
-    VStack(spacing: 20) {
+    VStack(spacing: 24) {
       Spacer()
 
       // Category badge
@@ -431,9 +397,10 @@ private struct WordCard: View {
 
       // Word
       Text(word.word)
-        .font(.system(size: 36, weight: .bold, design: .serif))
+        .font(.system(size: 42, weight: .bold, design: .serif))
         .foregroundStyle(AppColors.textPrimary)
         .multilineTextAlignment(.center)
+        .padding(.horizontal)
 
       // Pronunciation
       if let pronunciation = word.pronunciation {
@@ -444,65 +411,62 @@ private struct WordCard: View {
       }
 
       // Difficulty
-      DifficultyDots(level: word.difficulty)
+      DifficultyIndicator(level: word.difficulty)
 
       Spacer()
 
       // Hint
       HStack(spacing: 4) {
         Image(systemName: "hand.tap")
-        Text("Tap to reveal")
+        Text("Tap to reveal definition")
       }
       .font(.caption)
       .foregroundStyle(AppColors.textSecondary)
-      .padding(.bottom, 20)
+      .padding(.bottom, 24)
     }
     .padding()
   }
 
   private var backSide: some View {
     ScrollView {
-      VStack(alignment: .leading, spacing: 20) {
+      VStack(alignment: .leading, spacing: 24) {
         // Header
-        HStack {
-          VStack(alignment: .leading, spacing: 4) {
-            Text(word.word)
-              .font(.title)
-              .fontWeight(.bold)
-              .fontDesign(.serif)
-              .foregroundStyle(AppColors.textPrimary)
+        VStack(alignment: .leading, spacing: 8) {
+          Text(word.word)
+            .font(.system(size: 32, weight: .bold, design: .serif))
+            .foregroundStyle(AppColors.textPrimary)
 
+          HStack(spacing: 12) {
             if let pronunciation = word.pronunciation {
               Text(pronunciation)
                 .font(.subheadline)
                 .foregroundStyle(AppColors.textSecondary)
                 .italic()
             }
+
+            DifficultyIndicator(level: word.difficulty)
           }
-
-          Spacer()
-
-          DifficultyDots(level: word.difficulty)
         }
 
         Divider()
 
         // Definition
         VStack(alignment: .leading, spacing: 8) {
-          Text("Definition")
+          Label("Definition", systemImage: "text.quote")
             .font(.caption)
             .fontWeight(.semibold)
             .foregroundStyle(AppColors.textSecondary)
 
           Text(word.definition)
-            .font(.body)
+            .font(.title3)
             .foregroundStyle(AppColors.textPrimary)
+            .lineSpacing(4)
         }
 
         // Example
         if let example = word.example {
           VStack(alignment: .leading, spacing: 8) {
-            Text("Example")
+            Label("Example", systemImage: "quote.bubble")
               .font(.caption)
               .fontWeight(.semibold)
               .foregroundStyle(AppColors.textSecondary)
@@ -525,15 +489,29 @@ private struct WordCard: View {
           }
           .padding(.top, 8)
         }
+
+        Spacer(minLength: 40)
+
+        // Hint
+        HStack {
+          Spacer()
+          HStack(spacing: 4) {
+            Image(systemName: "hand.tap")
+            Text("Tap to hide")
+          }
+          .font(.caption)
+          .foregroundStyle(AppColors.textSecondary)
+          Spacer()
+        }
       }
       .padding(24)
     }
   }
 }
 
-// MARK: - Difficulty Dots
+// MARK: - Difficulty Indicator
 
-private struct DifficultyDots: View {
+private struct DifficultyIndicator: View {
   let level: Int
 
   private var color: Color {
@@ -546,6 +524,16 @@ private struct DifficultyDots: View {
     }
   }
 
+  private var label: String {
+    switch level {
+    case 1...4: return "Easy"
+    case 5...6: return "Medium"
+    case 7...8: return "Hard"
+    case 9...10: return "Expert"
+    default: return "Unknown"
+    }
+  }
+
   var body: some View {
     HStack(spacing: 4) {
       ForEach(0..<5, id: \.self) { index in
@@ -553,6 +541,11 @@ private struct DifficultyDots: View {
           .fill(index < (level + 1) / 2 ? color : color.opacity(0.2))
           .frame(width: 8, height: 8)
       }
+
+      Text(label)
+        .font(.caption2)
+        .foregroundStyle(color)
+        .padding(.leading, 4)
     }
   }
 }

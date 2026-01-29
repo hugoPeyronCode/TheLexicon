@@ -119,6 +119,7 @@ struct StreakCelebrationView: View {
             .shadow(color: AppColors.accent.opacity(isDarkMode ? 0.5 : 0.3), radius: 10)
             .scaleEffect(numberScale)
             .opacity(numberOpacity)
+            .contentTransition(.numericText())
 
           Text(streakCount == 1 ? "Day Streak!" : "Day Streak!")
             .font(.title2)
@@ -255,6 +256,7 @@ private struct StatItem: View {
         .font(.title)
         .fontWeight(.bold)
         .foregroundStyle(textColor)
+        .contentTransition(.numericText())
 
       Text(title)
         .font(.caption)

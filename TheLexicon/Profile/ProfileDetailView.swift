@@ -56,55 +56,59 @@ struct ProfileDetailView: View {
   // MARK: - Header Section
 
   private var headerSection: some View {
-    HStack(spacing: 24) {
+    HStack(spacing: 16) {
       // Level
-      VStack(spacing: 4) {
-        Text("\(vocabularyLevel)")
-          .font(.system(size: 48, weight: .bold, design: .rounded))
-          .foregroundStyle(AppColors.accent)
-        Text("Level")
-          .font(.caption)
-          .foregroundStyle(AppColors.textSecondary)
-      }
-      .frame(maxWidth: .infinity)
+      statItem(
+        value: vocabularyLevel,
+        label: "Level",
+        color: AppColors.accent
+      )
 
       // Divider
       Rectangle()
         .fill(AppColors.borderMuted)
-        .frame(width: 1, height: 60)
+        .frame(width: 1, height: 50)
 
       // Score
-      VStack(spacing: 4) {
-        Text("\(overallScore)")
-          .font(.system(size: 48, weight: .bold, design: .rounded))
-          .foregroundStyle(AppColors.textPrimary)
-        Text("Score")
-          .font(.caption)
-          .foregroundStyle(AppColors.textSecondary)
-      }
-      .frame(maxWidth: .infinity)
+      statItem(
+        value: overallScore,
+        label: "Score",
+        color: AppColors.textPrimary
+      )
 
       // Divider
       Rectangle()
         .fill(AppColors.borderMuted)
-        .frame(width: 1, height: 60)
+        .frame(width: 1, height: 50)
 
       // Words
-      VStack(spacing: 4) {
-        Text("\(totalWordsLearned)")
-          .font(.system(size: 48, weight: .bold, design: .rounded))
-          .foregroundStyle(AppColors.textPrimary)
-        Text("Words")
-          .font(.caption)
-          .foregroundStyle(AppColors.textSecondary)
-      }
-      .frame(maxWidth: .infinity)
+      statItem(
+        value: totalWordsLearned,
+        label: "Words",
+        color: AppColors.textPrimary
+      )
     }
     .padding()
     .background {
       RoundedRectangle(cornerRadius: 16)
         .fill(AppColors.surfaceDefault)
     }
+  }
+
+  @ViewBuilder
+  private func statItem(value: Int, label: String, color: Color) -> some View {
+    VStack(spacing: 4) {
+      Text("\(value)")
+        .font(.system(size: 32, weight: .bold, design: .rounded))
+        .minimumScaleFactor(0.5)
+        .lineLimit(1)
+        .foregroundStyle(color)
+        .contentTransition(.numericText())
+      Text(label)
+        .font(.caption)
+        .foregroundStyle(AppColors.textSecondary)
+    }
+    .frame(maxWidth: .infinity)
   }
 
   // MARK: - Spider Graph Section
@@ -183,6 +187,7 @@ struct ProfileDetailView: View {
         .fontWeight(.medium)
         .foregroundStyle(AppColors.textSecondary)
         .frame(width: 40, alignment: .trailing)
+        .contentTransition(.numericText())
     }
     .padding(.horizontal, 16)
     .padding(.vertical, 12)

@@ -140,6 +140,7 @@ struct CalendarDayButton: View {
           Text("\(completedCount)/\(totalCount)")
             .font(AppFonts.Calendar.bottom(screenSize))
             .foregroundStyle(bottomTextColor)
+            .contentTransition(.numericText())
         }
       }
     }

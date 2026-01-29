@@ -242,6 +242,7 @@ struct StreakBadge: View {
         .foregroundStyle(AppColors.accent)
       Text("\(count)")
         .fontWeight(.semibold)
+        .contentTransition(.numericText())
     }
     .font(.subheadline)
   }

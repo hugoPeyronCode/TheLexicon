@@ -36,6 +36,7 @@ struct InfiniteModeCard: View {
             .font(AppFonts.title2(screenSize))
             .fontWeight(.black)
             .foregroundStyle(AppColors.accent)
+            .contentTransition(.numericText())
         }
 
         Spacer()

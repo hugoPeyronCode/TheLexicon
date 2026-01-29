@@ -89,6 +89,7 @@ struct ConnectionsGameCard: View {
               .font(AppFonts.title(screenSize))
               .fontWeight(.bold)
               .foregroundStyle(AppColors.textPrimary)
+              .contentTransition(.numericText())
 
             Text("groups")
               .font(AppFonts.caption(screenSize))
@@ -163,6 +164,7 @@ private struct StatItem: View {
         .font(AppFonts.body(screenSize))
         .fontWeight(.bold)
         .foregroundStyle(AppColors.textPrimary)
+        .contentTransition(.numericText())
 
       Text(label)
         .font(AppFonts.caption2(screenSize))

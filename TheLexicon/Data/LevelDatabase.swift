@@ -94,9 +94,9 @@ final class LevelDatabase {
   private func loadAllLevels() {
     guard !isLoaded else { return }
 
-    // Load from bundled JSON files
-    let fileNames = stride(from: 1, through: 500, by: 10).map { start -> String in
-      let end = min(start + 9, 500)
+    // Load from bundled JSON files (50 levels per file)
+    let fileNames = stride(from: 1, through: 500, by: 50).map { start -> String in
+      let end = min(start + 49, 500)
       return String(format: "levels_%03d_%03d", start, end)
     }
 
