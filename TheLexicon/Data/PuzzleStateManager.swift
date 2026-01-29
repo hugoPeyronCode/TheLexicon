@@ -38,11 +38,9 @@ final class PuzzleStateManager {
   // Cache for quick lookups
   private var stateCache: [Date: PuzzleState] = [:]
 
-  // MARK: - Singleton
+  // MARK: - Initialization
 
-  static let shared = PuzzleStateManager()
-
-  private init() {}
+  init() {}
 
   // MARK: - Setup
 

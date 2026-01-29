@@ -43,11 +43,9 @@ final class DailyProgressManager {
   // Cache for quick lookups
   private var progressCache: [Date: DailyProgress] = [:]
 
-  // MARK: - Singleton for shared access
+  // MARK: - Initialization
 
-  static let shared = DailyProgressManager()
-
-  private init() {}
+  init() {}
 
   // MARK: - Setup
 
@@ -171,15 +169,3 @@ extension DailyProgressManager {
   }
 }
 
-// MARK: - Environment Key
-
-struct DailyProgressManagerKey: EnvironmentKey {
-  static let defaultValue = DailyProgressManager.shared
-}
-
-extension EnvironmentValues {
-  var progressManager: DailyProgressManager {
-    get { self[DailyProgressManagerKey.self] }
-    set { self[DailyProgressManagerKey.self] = newValue }
-  }
-}

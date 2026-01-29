@@ -144,7 +144,7 @@ struct CalendarDayButton: View {
         }
       }
     }
-    .fontDesign(AppFontManager.shared.currentDesign.swiftUIDesign)
+    .fontDesign(AppFontManager.current.currentDesign.swiftUIDesign)
     .frame(
       width: AppLayout.Calendar.buttonWidth(screenSize),
       height: AppLayout.Calendar.buttonHeight(screenSize)

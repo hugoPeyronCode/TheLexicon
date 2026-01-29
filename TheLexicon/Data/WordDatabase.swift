@@ -12,10 +12,6 @@ import Foundation
 @Observable
 final class WordDatabase {
 
-  // MARK: - Singleton
-
-  static let shared = WordDatabase()
-
   // MARK: - Properties
 
   private var definitions: [String: WordDefinition] = [:] // keyed by lowercase word
@@ -26,7 +22,7 @@ final class WordDatabase {
 
   // MARK: - Initialization
 
-  private init() {
+  init() {
     loadDefinitions()
   }
 

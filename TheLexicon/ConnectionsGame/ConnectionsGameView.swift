@@ -10,6 +10,7 @@ import SwiftUI
 struct ConnectionsGameView: View {
   @Environment(\.dismiss) private var dismiss
 
+  let dependencies: AppDependencies
   let date: Date?
   let infiniteLevel: Int?
   let customGroups: [WordGroup]?
@@ -56,25 +57,52 @@ struct ConnectionsGameView: View {
     return "Connections"
   }
 
-  init(date: Date = Date()) {
+  init(dependencies: AppDependencies, date: Date = Date()) {
+    self.dependencies = dependencies
     self.date = date
     self.infiniteLevel = nil
     self.customGroups = nil
-    self._viewModel = State(initialValue: ConnectionsGameViewModel(date: date))
+    _viewModel = State(wrappedValue: ConnectionsGameViewModel(
+      date: date,
+      dailyProgressManager: dependencies.dailyProgressManager,
+      puzzleStateManager: dependencies.puzzleStateManager,
+      streakManager: dependencies.streakManager,
+      infiniteModeProgressManager: dependencies.infiniteModeProgressManager,
+      vocabularyProfileManager: dependencies.vocabularyProfileManager,
+      levelDatabase: dependencies.levelDatabase
+    ))
   }
 
-  init(infiniteLevel: Int) {
+  init(dependencies: AppDependencies, infiniteLevel: Int) {
+    self.dependencies = dependencies
     self.date = nil
     self.infiniteLevel = infiniteLevel
     self.customGroups = nil
-    self._viewModel = State(initialValue: ConnectionsGameViewModel(infiniteLevel: infiniteLevel))
+    _viewModel = State(wrappedValue: ConnectionsGameViewModel(
+      infiniteLevel: infiniteLevel,
+      dailyProgressManager: dependencies.dailyProgressManager,
+      puzzleStateManager: dependencies.puzzleStateManager,
+      streakManager: dependencies.streakManager,
+      infiniteModeProgressManager: dependencies.infiniteModeProgressManager,
+      vocabularyProfileManager: dependencies.vocabularyProfileManager,
+      levelDatabase: dependencies.levelDatabase
+    ))
   }
 
-  init(customGroups: [WordGroup]) {
+  init(dependencies: AppDependencies, customGroups: [WordGroup]) {
+    self.dependencies = dependencies
     self.date = nil
     self.infiniteLevel = nil
     self.customGroups = customGroups
-    self._viewModel = State(initialValue: ConnectionsGameViewModel(customGroups: customGroups))
+    _viewModel = State(wrappedValue: ConnectionsGameViewModel(
+      customGroups: customGroups,
+      dailyProgressManager: dependencies.dailyProgressManager,
+      puzzleStateManager: dependencies.puzzleStateManager,
+      streakManager: dependencies.streakManager,
+      infiniteModeProgressManager: dependencies.infiniteModeProgressManager,
+      vocabularyProfileManager: dependencies.vocabularyProfileManager,
+      levelDatabase: dependencies.levelDatabase
+    ))
   }
 
   // Determine if scrolling is needed (more than 6 rows)
@@ -190,7 +218,7 @@ struct ConnectionsGameView: View {
     .onChange(of: viewModel.isGameWon) { _, isWon in
       if isWon {
         // Record completion and check if this is a new streak day
-        isNewStreakDay = StreakManager.shared.recordCompletion()
+        isNewStreakDay = dependencies.streakManager.recordCompletion()
 
         withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
           showContinueButton = true
@@ -201,8 +229,8 @@ struct ConnectionsGameView: View {
       dismiss()
     }) {
       StreakCelebrationView(
-        streakCount: StreakManager.shared.currentStreak,
-        longestStreak: StreakManager.shared.longestStreak,
+        streakCount: dependencies.streakManager.currentStreak,
+        longestStreak: dependencies.streakManager.longestStreak,
         isNewStreak: isNewStreakDay
       )
     }
@@ -514,6 +542,5 @@ struct ConnectionsGameView: View {
 // MARK: - Preview
 
 #Preview {
-  ConnectionsGameView()
-    .withPreviewContainer()
+  ConnectionsGameView(dependencies: .forPreview())
 }

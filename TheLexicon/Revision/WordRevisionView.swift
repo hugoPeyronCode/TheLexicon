@@ -7,30 +7,61 @@
 
 import SwiftUI
 
+// MARK: - Filter Mode
+
+enum WordRevisionFilter: Equatable {
+  case all
+  case category(SemanticCategory)
+  case wantToLearn
+
+  var displayName: String {
+    switch self {
+    case .all:
+      return "All Words"
+    case .category(let cat):
+      return cat.rawValue
+    case .wantToLearn:
+      return "Want to Learn"
+    }
+  }
+}
+
 struct WordRevisionView: View {
   @Environment(\.dismiss) private var dismiss
 
+  let dependencies: AppDependencies
+
   @State private var currentPage: Int = 0
-  @State private var selectedCategory: SemanticCategory?
+  @State private var selectedFilter: WordRevisionFilter = .all
   @State private var showFilters: Bool = false
   @State private var showCustomLevelAlert: Bool = false
   @State private var showCustomGame: Bool = false
   @State private var customGroups: [WordGroup] = []
   @State private var shuffledWords: [WordDefinition] = []
   @State private var hasInitialized: Bool = false
+  @State private var swipeCount: Int = 0 // Track swipes to hide hint
 
   private var wantToLearnManager: WantToLearnManager {
-    WantToLearnManager.shared
+    dependencies.wantToLearnManager
+  }
+
+  private var wordDatabase: WordDatabase {
+    dependencies.wordDatabase
   }
 
   private var filteredWords: [WordDefinition] {
-    var words = WordDatabase.shared.harderWords
+    // Use ALL words from the database
+    let allWords = wordDatabase.all
 
-    if let category = selectedCategory {
-      words = words.filter { $0.category == category.rawValue }
+    switch selectedFilter {
+    case .all:
+      return allWords
+    case .category(let category):
+      return allWords.filter { $0.category == category.rawValue }
+    case .wantToLearn:
+      let wantToLearnIds = Set(wantToLearnManager.pendingWords.map { $0.wordId })
+      return allWords.filter { wantToLearnIds.contains($0.id) }
     }
-
-    return words
   }
 
   var body: some View {
@@ -82,7 +113,7 @@ struct WordRevisionView: View {
             Button {
               showFilters.toggle()
             } label: {
-              Image(systemName: selectedCategory != nil ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+              Image(systemName: selectedFilter != .all ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
             }
           }
         }
@@ -100,14 +131,14 @@ struct WordRevisionView: View {
         Text("You have \(wantToLearnManager.pendingCount) words to learn. Would you like to create a custom level to practice them?")
       }
       .fullScreenCover(isPresented: $showCustomGame) {
-        ConnectionsGameView(customGroups: customGroups)
+        ConnectionsGameView(dependencies: dependencies, customGroups: customGroups)
       }
       .onChange(of: wantToLearnManager.pendingCount) { _, newCount in
         if newCount >= WantToLearnManager.minimumWordsForLevel && newCount % 4 == 0 {
           showCustomLevelAlert = true
         }
       }
-      .onChange(of: selectedCategory) { _, _ in
+      .onChange(of: selectedFilter) { _, _ in
         shuffleWords()
         currentPage = 0
       }
@@ -120,28 +151,42 @@ struct WordRevisionView: View {
     }
   }
 
-  // MARK: - TikTok-style Scrolling Content
+  // MARK: - Scrolling Content
 
   private func scrollingContent(screen: GeometryProxy) -> some View {
-    TabView(selection: $currentPage) {
-      ForEach(Array(shuffledWords.enumerated()), id: \.element.id) { index, word in
-        WordCardView(
-          word: word,
-          isMarked: wantToLearnManager.isMarked(word.id),
-          onToggleMark: {
-            wantToLearnManager.toggleWord(word.id)
-          }
-        )
-        .frame(width: screen.size.width, height: screen.size.height - 180) // Account for header and controls
-        .rotationEffect(Angle(degrees: -90))
-        .sensoryFeedback(.impact(flexibility: .soft), trigger: currentPage)
-        .tag(index)
+    ScrollView(.vertical, showsIndicators: false) {
+      LazyVStack(spacing: 0) {
+        ForEach(Array(shuffledWords.enumerated()), id: \.element.id) { index, word in
+          WordCardView(
+            word: word,
+            isMarked: wantToLearnManager.isMarked(word.id),
+            onToggleMark: {
+              wantToLearnManager.toggleWord(word.id)
+            }
+          )
+          .frame(height: screen.size.height - 200)
+          .containerRelativeFrame(.vertical)
+          .id(index)
+        }
       }
+      .scrollTargetLayout()
     }
-    .frame(width: screen.size.height - 180, height: screen.size.width)
-    .rotationEffect(.degrees(90), anchor: .topLeading)
-    .offset(x: screen.size.width)
-    .tabViewStyle(.page(indexDisplayMode: .never))
+    .scrollTargetBehavior(.paging)
+    .scrollPosition(id: Binding(
+      get: { currentPage },
+      set: { newValue in
+        if let newValue {
+          currentPage = newValue
+          // Track swipes for hiding the hint
+          if swipeCount < 3 {
+            withAnimation {
+              swipeCount += 1
+            }
+          }
+        }
+      }
+    ))
+    .sensoryFeedback(.impact(flexibility: .soft), trigger: currentPage)
   }
 
   // MARK: - Progress Header
@@ -199,13 +244,16 @@ struct WordRevisionView: View {
 
   private var bottomControls: some View {
     VStack(spacing: 12) {
-      // Swipe hint
-      HStack(spacing: 4) {
-        Image(systemName: "arrow.up.arrow.down")
-        Text("Swipe to browse")
+      // Swipe hint (hidden after 3 swipes)
+      if swipeCount < 3 {
+        HStack(spacing: 4) {
+          Image(systemName: "arrow.up.arrow.down")
+          Text("Swipe to browse")
+        }
+        .font(.caption)
+        .foregroundStyle(AppColors.textSecondary)
+        .transition(.opacity)
       }
-      .font(.caption)
-      .foregroundStyle(AppColors.textSecondary)
 
       // Custom level prompt
       if wantToLearnManager.canCreateCustomLevel {
@@ -237,15 +285,47 @@ struct WordRevisionView: View {
   private var filterSheet: some View {
     NavigationStack {
       List {
-        Section("Category") {
+        // Want to Learn section
+        Section {
           Button {
-            selectedCategory = nil
+            selectedFilter = .wantToLearn
             showFilters = false
           } label: {
             HStack {
-              Text("All Categories")
+              Image(systemName: "bookmark.fill")
+                .foregroundStyle(AppColors.accent)
+                .frame(width: 24)
+              Text("Want to Learn")
               Spacer()
-              if selectedCategory == nil {
+              Text("\(wantToLearnManager.pendingCount)")
+                .font(.caption)
+                .foregroundStyle(AppColors.textSecondary)
+              if selectedFilter == .wantToLearn {
+                Image(systemName: "checkmark")
+                  .foregroundStyle(AppColors.accent)
+              }
+            }
+          }
+          .foregroundStyle(AppColors.textPrimary)
+        } header: {
+          Text("Learning")
+        }
+
+        Section("Category") {
+          Button {
+            selectedFilter = .all
+            showFilters = false
+          } label: {
+            HStack {
+              Image(systemName: "square.grid.2x2")
+                .foregroundStyle(AppColors.textSecondary)
+                .frame(width: 24)
+              Text("All Words")
+              Spacer()
+              Text("\(wordDatabase.all.count)")
+                .font(.caption)
+                .foregroundStyle(AppColors.textSecondary)
+              if selectedFilter == .all {
                 Image(systemName: "checkmark")
                   .foregroundStyle(AppColors.accent)
               }
@@ -254,9 +334,9 @@ struct WordRevisionView: View {
           .foregroundStyle(AppColors.textPrimary)
 
           ForEach(SemanticCategory.allCases, id: \.self) { category in
-            let count = WordDatabase.shared.harderWords.filter { $0.category == category.rawValue }.count
+            let count = wordDatabase.all.filter { $0.category == category.rawValue }.count
             Button {
-              selectedCategory = category
+              selectedFilter = .category(category)
               showFilters = false
             } label: {
               HStack {
@@ -268,7 +348,7 @@ struct WordRevisionView: View {
                 Text("\(count)")
                   .font(.caption)
                   .foregroundStyle(AppColors.textSecondary)
-                if selectedCategory == category {
+                if case .category(let selected) = selectedFilter, selected == category {
                   Image(systemName: "checkmark")
                     .foregroundStyle(AppColors.accent)
                 }
@@ -288,24 +368,26 @@ struct WordRevisionView: View {
         }
       }
     }
-    .presentationDetents([.medium])
+    .presentationDetents([.medium, .large])
   }
 
   // MARK: - Empty State
 
   private var emptyState: some View {
     VStack(spacing: 16) {
-      Image(systemName: "text.book.closed")
+      Image(systemName: selectedFilter == .wantToLearn ? "bookmark" : "text.book.closed")
         .font(.system(size: 60))
         .foregroundStyle(AppColors.textSecondary)
 
-      Text("No words found")
+      Text(selectedFilter == .wantToLearn ? "No words to learn yet" : "No words found")
         .font(.headline)
         .foregroundStyle(AppColors.textPrimary)
 
-      Text("Try selecting a different category")
+      Text(selectedFilter == .wantToLearn ? "Tap the bookmark icon on any word to add it here" : "Try selecting a different category")
         .font(.subheadline)
         .foregroundStyle(AppColors.textSecondary)
+        .multilineTextAlignment(.center)
+        .padding(.horizontal, 40)
     }
   }
 
@@ -330,49 +412,61 @@ private struct WordCardView: View {
   }
 
   var body: some View {
-    ZStack {
-      // Card background
-      RoundedRectangle(cornerRadius: 24)
-        .fill(AppColors.surfaceDefault)
-        .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
+    VStack(spacing: 16) {
+      // Card
+      ZStack {
+        // Card background
+        RoundedRectangle(cornerRadius: 24)
+          .fill(AppColors.surfaceDefault)
+          .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
 
-      // Card content
-      VStack(spacing: 0) {
-        if !showDefinition {
-          frontSide
-        } else {
-          backSide
-        }
-      }
-
-      // Bookmark overlay
-      VStack {
-        HStack {
-          Spacer()
-          Button {
-            onToggleMark()
-          } label: {
-            Image(systemName: isMarked ? "bookmark.fill" : "bookmark")
-              .font(.title2)
-              .foregroundStyle(isMarked ? AppColors.accent : AppColors.textSecondary)
-              .padding()
+        // Card content
+        VStack(spacing: 0) {
+          if !showDefinition {
+            frontSide
+          } else {
+            backSide
           }
         }
-        Spacer()
       }
-    }
-    .overlay {
-      RoundedRectangle(cornerRadius: 24)
-        .stroke(isMarked ? AppColors.accent : AppColors.borderMuted, lineWidth: isMarked ? 2 : 1)
+      .overlay {
+        RoundedRectangle(cornerRadius: 24)
+          .stroke(isMarked ? AppColors.accent : AppColors.borderMuted, lineWidth: isMarked ? 2 : 1)
+      }
+      .contentShape(Rectangle())
+      .onTapGesture {
+        withAnimation(.spring(response: 0.3)) {
+          showDefinition.toggle()
+        }
+      }
+
+      // Bookmark button at bottom (fixed, not scrolling with card content)
+      Button {
+        onToggleMark()
+      } label: {
+        HStack(spacing: 8) {
+          Image(systemName: isMarked ? "bookmark.fill" : "bookmark")
+            .font(.title3)
+          Text(isMarked ? "Added to learning list" : "Add to learning list")
+            .font(.subheadline)
+            .fontWeight(.medium)
+        }
+        .foregroundStyle(isMarked ? .white : AppColors.textPrimary)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 14)
+        .background {
+          RoundedRectangle(cornerRadius: 14)
+            .fill(isMarked ? AppColors.accent : AppColors.surfaceDefault)
+        }
+        .overlay {
+          RoundedRectangle(cornerRadius: 14)
+            .stroke(isMarked ? AppColors.accent : AppColors.borderMuted, lineWidth: 1)
+        }
+      }
+      .sensoryFeedback(.impact(flexibility: .soft), trigger: isMarked)
     }
     .padding(.horizontal, 20)
     .padding(.vertical, 10)
-    .contentShape(Rectangle())
-    .onTapGesture {
-      withAnimation(.spring(response: 0.3)) {
-        showDefinition.toggle()
-      }
-    }
   }
 
   private var frontSide: some View {
@@ -422,7 +516,7 @@ private struct WordCardView: View {
       }
       .font(.caption)
       .foregroundStyle(AppColors.textSecondary)
-      .padding(.bottom, 24)
+      .padding(.bottom, 16)
     }
     .padding()
   }
@@ -490,9 +584,9 @@ private struct WordCardView: View {
           .padding(.top, 8)
         }
 
-        Spacer(minLength: 40)
+        Spacer(minLength: 16)
 
-        // Hint
+        // Hint to tap to hide
         HStack {
           Spacer()
           HStack(spacing: 4) {
@@ -553,5 +647,5 @@ private struct DifficultyIndicator: View {
 // MARK: - Preview
 
 #Preview {
-  WordRevisionView()
+  WordRevisionView(dependencies: .forPreview())
 }

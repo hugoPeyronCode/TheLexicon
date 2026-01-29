@@ -44,20 +44,8 @@ struct InfiniteLevelData {
   var groupCount: Int { groups.count }
 }
 
-// MARK: - Game Data Provider
+// MARK: - Game Data Provider (deprecated - use LevelDatabase directly)
 
-struct InfiniteModeData {
-
-  /// Total number of levels available (loops after reaching the end)
-  static let totalLevels = LevelDatabase.totalLevels
-
-  /// Returns the level configuration for a specific level number
-  static func level(_ number: Int) -> InfiniteLevelData {
-    LevelDatabase.shared.level(number)
-  }
-
-  /// Returns difficulty based on level number pattern
-  static func difficulty(for level: Int) -> InfiniteModeDifficulty {
-    LevelDatabase.shared.difficulty(for: level)
-  }
-}
+// NOTE: This struct is kept for backwards compatibility but is deprecated.
+// Use LevelDatabase directly for level() and difficulty() functions.
+// InfiniteModeData.totalLevels is equivalent to LevelDatabase.totalLevels

@@ -12,10 +12,6 @@ import Foundation
 @Observable
 final class LevelDatabase {
 
-  // MARK: - Singleton
-
-  static let shared = LevelDatabase()
-
   // MARK: - Properties
 
   private var levels: [Int: LevelJSON] = [:]
@@ -34,7 +30,7 @@ final class LevelDatabase {
 
   // MARK: - Initialization
 
-  private init() {
+  init() {
     loadAllLevels()
   }
 

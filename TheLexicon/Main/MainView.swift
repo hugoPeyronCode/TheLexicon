@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct MainView: View {
-  
+
+  let dependencies: AppDependencies
+
   @Environment(\.scenePhase) private var scenePhase
 
   @State private var showGame: Bool = false
@@ -24,34 +26,34 @@ struct MainView: View {
   @State private var lastActiveDate: Date = Calendar.current.startOfDay(for: Date())
 
   private var streakCount: Int {
-    StreakManager.shared.currentStreak
+    dependencies.streakManager.currentStreak
   }
 
   private var vocabularyProfile: VocabularyProfileManager {
-    VocabularyProfileManager.shared
+    dependencies.vocabularyProfileManager
   }
 
   private var wordOfTheDay: WordDefinition? {
-    WordDatabase.shared.wordOfTheDay(for: Date())
+    dependencies.wordDatabase.wordOfTheDay(for: Date())
   }
 
-  
+
   private var selectedProgress: DailyProgress {
-    DailyProgressManager.shared.progress(for: selectedDate)
+    dependencies.dailyProgressManager.progress(for: selectedDate)
   }
-  
+
   private var selectedGameData: [WordGroup] {
-    ConnectionsGameData.game(for: selectedDate)
+    dependencies.levelDatabase.groups(for: selectedDate)
   }
-  
+
   private var wordCount: Int {
     selectedGameData.count * 4
   }
-  
+
   private var groupCount: Int {
     selectedGameData.count
   }
-  
+
   private var difficulty: String {
     switch selectedGameData.count {
     case 1...4: return "Easy"
@@ -60,19 +62,23 @@ struct MainView: View {
     default: return "Expert"
     }
   }
-  
+
   private var isSelectedDayCompleted: Bool {
     selectedProgress.completedGroups >= groupCount && groupCount > 0
   }
-  
+
   var body: some View {
     NavigationStack {
       GeometryReader { geometry in
         VStack(spacing: 0) {
           ScrollView {
             VStack(spacing: AppLayout.Spacing.lg(geometry.size)) {
-              HorizontalCalendar(screenSize: geometry.size, selectedDate: $selectedDate)
-              
+              HorizontalCalendar(
+                screenSize: geometry.size,
+                selectedDate: $selectedDate,
+                dependencies: dependencies
+              )
+
               ConnectionsGameCard(
                 screenSize: geometry.size,
                 wordCount: wordCount,
@@ -86,8 +92,9 @@ struct MainView: View {
               // Infinite Mode Card
               InfiniteModeCard(
                 screenSize: geometry.size,
-                currentLevel: InfiniteModeProgressManager.shared.currentLevel,
-                completedLevels: InfiniteModeProgressManager.shared.completedLevels
+                currentLevel: dependencies.infiniteModeProgressManager.currentLevel,
+                completedLevels: dependencies.infiniteModeProgressManager.completedLevels,
+                levelDatabase: dependencies.levelDatabase
               ) {
                 showInfiniteGame = true
               }
@@ -120,7 +127,8 @@ struct MainView: View {
 
               // Word Revision Card
               WordRevisionCard(
-                screenSize: geometry.size
+                screenSize: geometry.size,
+                dependencies: dependencies
               ) {
                 showWordRevision = true
               }
@@ -134,20 +142,20 @@ struct MainView: View {
         }
       }
       .fullScreenCover(isPresented: $showGame) {
-        ConnectionsGameView(date: selectedDate)
+        ConnectionsGameView(dependencies: dependencies, date: selectedDate)
       }
       .fullScreenCover(isPresented: $showInfiniteGame) {
-        ConnectionsGameView(infiniteLevel: InfiniteModeProgressManager.shared.currentLevel)
+        ConnectionsGameView(dependencies: dependencies, infiniteLevel: dependencies.infiniteModeProgressManager.currentLevel)
       }
       .fullScreenCover(isPresented: $showStreakView) {
         StreakCelebrationView(
           streakCount: streakCount,
-          longestStreak: StreakManager.shared.longestStreak,
+          longestStreak: dependencies.streakManager.longestStreak,
           isNewStreak: false
         )
       }
       .fullScreenCover(isPresented: $showVocabularyTest) {
-        VocabularyTestView()
+        VocabularyTestView(dependencies: dependencies)
       }
       .fullScreenCover(isPresented: $showProfileDetail) {
         ProfileDetailView(
@@ -158,10 +166,10 @@ struct MainView: View {
         )
       }
       .fullScreenCover(isPresented: $showWordRevision) {
-        WordRevisionView()
+        WordRevisionView(dependencies: dependencies)
       }
       .fullScreenCover(isPresented: $showDebugMenu) {
-        DebugMenuView()
+        DebugMenuView(dependencies: dependencies)
       }
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
@@ -173,7 +181,7 @@ struct MainView: View {
           }
           .buttonStyle(.plain)
         }
-        
+
         ToolbarItem(placement: .principal) {
           Text("The Lexicon")
             .fontWeight(.black)
@@ -181,7 +189,7 @@ struct MainView: View {
             .fontDesign(.serif)
             .foregroundStyle(AppColors.accentMuted)
         }
-        
+
         ToolbarItem(placement: .topBarTrailing) {
           Button {
             handleSettingsTap()
@@ -197,7 +205,7 @@ struct MainView: View {
       }
     }
   }
-  
+
   // MARK: - Settings Tap (Debug Menu Activation)
 
   private func handleSettingsTap() {
@@ -220,11 +228,11 @@ struct MainView: View {
 
   private func checkForDayChange() {
     let today = Calendar.current.startOfDay(for: Date())
-    
+
     // If the day has changed since we last checked
     if today != lastActiveDate {
       lastActiveDate = today
-      
+
       // If user was viewing the previous "today", update to new today
       if selectedDate == Calendar.current.date(byAdding: .day, value: -1, to: today) {
         selectedDate = today
@@ -235,7 +243,7 @@ struct MainView: View {
 
 struct StreakBadge: View {
   let count: Int
-  
+
   var body: some View {
     HStack(spacing: 4) {
       Image(systemName: "flame.fill")
@@ -249,6 +257,5 @@ struct StreakBadge: View {
 }
 
 #Preview {
-  MainView()
-    .withPreviewContainer()
+  MainView(dependencies: .forPreview())
 }

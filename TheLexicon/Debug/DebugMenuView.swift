@@ -10,6 +10,8 @@ import SwiftUI
 struct DebugMenuView: View {
   @Environment(\.dismiss) private var dismiss
 
+  let dependencies: AppDependencies
+
   @State private var selectedTab: DebugTab = .daily
   @State private var selectedLevel: Int = 1
   @State private var showGame: Bool = false
@@ -54,9 +56,9 @@ struct DebugMenuView: View {
       }
       .fullScreenCover(isPresented: $showGame) {
         if selectedTab == .daily {
-          ConnectionsGameView(date: dateForLevel(selectedLevel))
+          ConnectionsGameView(dependencies: dependencies, date: dateForLevel(selectedLevel))
         } else {
-          ConnectionsGameView(infiniteLevel: selectedLevel)
+          ConnectionsGameView(dependencies: dependencies, infiniteLevel: selectedLevel)
         }
       }
     }
@@ -69,9 +71,9 @@ struct DebugMenuView: View {
       LazyVStack(spacing: 12) {
         ForEach(1...30, id: \.self) { daysAgo in
           let date = Calendar.current.date(byAdding: .day, value: -daysAgo + 1, to: Date()) ?? Date()
-          let levelNumber = LevelDatabase.shared.levelNumber(for: date)
-          let difficulty = LevelDatabase.shared.difficulty(for: levelNumber)
-          let groups = LevelDatabase.shared.groups(for: date)
+          let levelNumber = dependencies.levelDatabase.levelNumber(for: date)
+          let difficulty = dependencies.levelDatabase.difficulty(for: levelNumber)
+          let groups = dependencies.levelDatabase.groups(for: date)
 
           DebugLevelRow(
             title: "Day \(daysAgo): Level \(levelNumber)",
@@ -101,7 +103,7 @@ struct DebugMenuView: View {
 
         // Level list
         ForEach(1...50, id: \.self) { level in
-          let levelData = LevelDatabase.shared.level(level)
+          let levelData = dependencies.levelDatabase.level(level)
 
           DebugLevelRow(
             title: "Level \(level)",
@@ -177,36 +179,36 @@ struct DebugMenuView: View {
 
         // Word Database Info
         infoSection(title: "Word Database") {
-          infoRow("Total Words", "\(WordDatabase.shared.all.count)")
-          infoRow("Harder Words (5+)", "\(WordDatabase.shared.harderWords.count)")
+          infoRow("Total Words", "\(dependencies.wordDatabase.all.count)")
+          infoRow("Harder Words (5+)", "\(dependencies.wordDatabase.harderWords.count)")
         }
 
         // Category Distribution
         infoSection(title: "Words by Category") {
           ForEach(SemanticCategory.allCases, id: \.self) { category in
-            let count = WordDatabase.shared.words(for: category).count
+            let count = dependencies.wordDatabase.words(for: category).count
             infoRow(category.rawValue, "\(count)")
           }
         }
 
         // Vocabulary Profile Info
         infoSection(title: "Vocabulary Profile") {
-          infoRow("Has Completed Test", "\(VocabularyProfileManager.shared.hasCompletedInitialTest)")
-          infoRow("Overall Score", "\(VocabularyProfileManager.shared.overallScore)")
-          infoRow("Level", "\(VocabularyProfileManager.shared.vocabularyLevel)")
-          infoRow("Words Learned", "\(VocabularyProfileManager.shared.totalWordsLearned)")
+          infoRow("Has Completed Test", "\(dependencies.vocabularyProfileManager.hasCompletedInitialTest)")
+          infoRow("Overall Score", "\(dependencies.vocabularyProfileManager.overallScore)")
+          infoRow("Level", "\(dependencies.vocabularyProfileManager.vocabularyLevel)")
+          infoRow("Words Learned", "\(dependencies.vocabularyProfileManager.totalWordsLearned)")
         }
 
         // Streak Info
         infoSection(title: "Streak Data") {
-          infoRow("Current Streak", "\(StreakManager.shared.currentStreak)")
-          infoRow("Longest Streak", "\(StreakManager.shared.longestStreak)")
+          infoRow("Current Streak", "\(dependencies.streakManager.currentStreak)")
+          infoRow("Longest Streak", "\(dependencies.streakManager.longestStreak)")
         }
 
         // Infinite Mode Progress
         infoSection(title: "Infinite Mode") {
-          infoRow("Current Level", "\(InfiniteModeProgressManager.shared.currentLevel)")
-          infoRow("Completed Levels", "\(InfiniteModeProgressManager.shared.completedLevels)")
+          infoRow("Current Level", "\(dependencies.infiniteModeProgressManager.currentLevel)")
+          infoRow("Completed Levels", "\(dependencies.infiniteModeProgressManager.completedLevels)")
         }
 
         // Reset buttons
@@ -342,5 +344,5 @@ private struct DebugLevelRow: View {
 // MARK: - Preview
 
 #Preview {
-  DebugMenuView()
+  DebugMenuView(dependencies: .forPreview())
 }

@@ -58,6 +58,15 @@ class ConnectionsGameViewModel {
   // Drag state
   var draggingIndex: Int? = nil
 
+  // MARK: - Dependencies
+
+  private let dailyProgressManager: DailyProgressManager
+  private let puzzleStateManager: PuzzleStateManager
+  private let streakManager: StreakManager
+  private let infiniteModeProgressManager: InfiniteModeProgressManager
+  private let vocabularyProfileManager: VocabularyProfileManager
+  private let levelDatabase: LevelDatabase
+
   // MARK: - Private State
 
   private var groups: [WordGroup] = []
@@ -83,27 +92,69 @@ class ConnectionsGameViewModel {
 
   // MARK: - Initialization
 
-  init(date: Date = Date()) {
+  init(
+    date: Date = Date(),
+    dailyProgressManager: DailyProgressManager,
+    puzzleStateManager: PuzzleStateManager,
+    streakManager: StreakManager,
+    infiniteModeProgressManager: InfiniteModeProgressManager,
+    vocabularyProfileManager: VocabularyProfileManager,
+    levelDatabase: LevelDatabase
+  ) {
     self.gameDate = Calendar.current.startOfDay(for: date)
     self.infiniteLevel = nil
     self.customGroups = nil
     self.isCustomLevel = false
+    self.dailyProgressManager = dailyProgressManager
+    self.puzzleStateManager = puzzleStateManager
+    self.streakManager = streakManager
+    self.infiniteModeProgressManager = infiniteModeProgressManager
+    self.vocabularyProfileManager = vocabularyProfileManager
+    self.levelDatabase = levelDatabase
     loadLevel()
   }
 
-  init(infiniteLevel: Int) {
+  init(
+    infiniteLevel: Int,
+    dailyProgressManager: DailyProgressManager,
+    puzzleStateManager: PuzzleStateManager,
+    streakManager: StreakManager,
+    infiniteModeProgressManager: InfiniteModeProgressManager,
+    vocabularyProfileManager: VocabularyProfileManager,
+    levelDatabase: LevelDatabase
+  ) {
     self.gameDate = nil
     self.infiniteLevel = infiniteLevel
     self.customGroups = nil
     self.isCustomLevel = false
+    self.dailyProgressManager = dailyProgressManager
+    self.puzzleStateManager = puzzleStateManager
+    self.streakManager = streakManager
+    self.infiniteModeProgressManager = infiniteModeProgressManager
+    self.vocabularyProfileManager = vocabularyProfileManager
+    self.levelDatabase = levelDatabase
     loadInfiniteLevel(infiniteLevel)
   }
 
-  init(customGroups: [WordGroup]) {
+  init(
+    customGroups: [WordGroup],
+    dailyProgressManager: DailyProgressManager,
+    puzzleStateManager: PuzzleStateManager,
+    streakManager: StreakManager,
+    infiniteModeProgressManager: InfiniteModeProgressManager,
+    vocabularyProfileManager: VocabularyProfileManager,
+    levelDatabase: LevelDatabase
+  ) {
     self.gameDate = nil
     self.infiniteLevel = nil
     self.customGroups = customGroups
     self.isCustomLevel = true
+    self.dailyProgressManager = dailyProgressManager
+    self.puzzleStateManager = puzzleStateManager
+    self.streakManager = streakManager
+    self.infiniteModeProgressManager = infiniteModeProgressManager
+    self.vocabularyProfileManager = vocabularyProfileManager
+    self.levelDatabase = levelDatabase
     loadCustomLevel(customGroups)
   }
 
@@ -181,10 +232,10 @@ class ConnectionsGameViewModel {
       }
     } else if let date = gameDate {
       // Clear saved puzzle state
-      PuzzleStateManager.shared.clearState(for: date)
+      puzzleStateManager.clearState(for: date)
 
       // Reset daily progress for this date
-      DailyProgressManager.shared.updateProgress(
+      dailyProgressManager.updateProgress(
         for: date,
         completedGroups: 0,
         totalGroups: groups.count
@@ -240,11 +291,11 @@ class ConnectionsGameViewModel {
             isGameWon = true
             // Clear puzzle state on win (completed puzzle doesn't need restoring)
             if let date = gameDate {
-              PuzzleStateManager.shared.clearState(for: date)
+              puzzleStateManager.clearState(for: date)
             }
             // For infinite mode, advance to next level
             if isInfiniteMode {
-              InfiniteModeProgressManager.shared.completeCurrentLevel()
+              infiniteModeProgressManager.completeCurrentLevel()
             }
             // Award vocabulary points
             if isCustomLevel {
@@ -262,8 +313,8 @@ class ConnectionsGameViewModel {
 
   private func recordVocabularyProgress() {
     let themes = groups.map { $0.theme }
-    let streakMultiplier = StreakManager.shared.currentStreak
-    VocabularyProfileManager.shared.recordGameCompletion(
+    let streakMultiplier = streakManager.currentStreak
+    vocabularyProfileManager.recordGameCompletion(
       themes: themes,
       streakMultiplier: streakMultiplier
     )
@@ -272,14 +323,14 @@ class ConnectionsGameViewModel {
   private func recordCustomLevelProgress() {
     // Get all word IDs from the custom level
     let wordIds = groups.flatMap { $0.words }.map { $0.lowercased() }
-    VocabularyProfileManager.shared.recordPracticeLevelCompletion(wordIds: wordIds)
+    vocabularyProfileManager.recordPracticeLevelCompletion(wordIds: wordIds)
   }
 
   // MARK: - Progress Saving
 
   private func saveProgress() {
     guard let date = gameDate else { return }
-    DailyProgressManager.shared.updateProgress(
+    dailyProgressManager.updateProgress(
       for: date,
       completedGroups: completedRows.count,
       totalGroups: groups.count
@@ -295,7 +346,7 @@ class ConnectionsGameViewModel {
     let wordOrder = words.map { $0.text }
     let completedIndices = completedRows.map { $0.rowIndex }
 
-    PuzzleStateManager.shared.saveState(
+    puzzleStateManager.saveState(
       for: date,
       wordOrder: wordOrder,
       completedRowIndices: completedIndices
@@ -304,7 +355,7 @@ class ConnectionsGameViewModel {
 
   private func restorePuzzleState() -> Bool {
     guard let date = gameDate,
-          let savedState = PuzzleStateManager.shared.loadState(for: date) else {
+          let savedState = puzzleStateManager.loadState(for: date) else {
       return false
     }
 
@@ -316,7 +367,7 @@ class ConnectionsGameViewModel {
           savedState.wordOrder.count == words.count else {
       // State doesn't match, clear it
       if let date = gameDate {
-        PuzzleStateManager.shared.clearState(for: date)
+        puzzleStateManager.clearState(for: date)
       }
       return false
     }
@@ -337,7 +388,7 @@ class ConnectionsGameViewModel {
 
     guard restoredWords.count == words.count else {
       if let date = gameDate {
-        PuzzleStateManager.shared.clearState(for: date)
+        puzzleStateManager.clearState(for: date)
       }
       return false
     }
@@ -388,7 +439,7 @@ class ConnectionsGameViewModel {
     recentlyCompletedRow = nil
 
     // Load game data for the specific date
-    groups = ConnectionsGameData.game(for: date)
+    groups = levelDatabase.groups(for: date)
 
     // Create word objects and shuffle
     words = groups.flatMap { group in
@@ -409,7 +460,7 @@ class ConnectionsGameViewModel {
     recentlyCompletedRow = nil
 
     // Load game data for the infinite level
-    let levelData = InfiniteModeData.level(level)
+    let levelData = levelDatabase.level(level)
     groups = levelData.groups
 
     // Create word objects and shuffle

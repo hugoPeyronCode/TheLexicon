@@ -35,11 +35,13 @@ enum AppColorTheme: String, CaseIterable {
 
 @Observable
 class AppColorManager {
-  static let shared = AppColorManager()
-  
+  /// Shared instance for static AppColors access.
+  /// This is configured by AppDependencies at app startup.
+  static var current: AppColorManager = AppColorManager()
+
   var currentTheme: AppColorTheme = .terracotta
-  
-  private init() {}
+
+  init() {}
 }
 
 // MARK: - App Colors
@@ -49,7 +51,7 @@ enum AppColors {
   // MARK: - Brand
   
   static var accent: Color {
-    AppColorManager.shared.currentTheme.accent
+    AppColorManager.current.currentTheme.accent
   }
   
   static var accentMuted: Color { accent.opacity(0.7) }
@@ -197,7 +199,7 @@ private struct ThemePreviewView: View {
                 isSelected: selectedTheme == theme
               ) {
                 selectedTheme = theme
-                AppColorManager.shared.currentTheme = theme
+                AppColorManager.current.currentTheme = theme
               }
             }
           }

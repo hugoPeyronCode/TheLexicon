@@ -13,14 +13,24 @@ struct HorizontalCalendar: View {
 
   let screenSize: CGSize
   @Binding var selectedDate: Date
+  let dependencies: AppDependencies
 
-  @State private var vm = HorizontalCalendarViewModel()
+  @State private var vm: HorizontalCalendarViewModel
   @State private var scrollProxy: ScrollViewProxy?
+
+  init(screenSize: CGSize, selectedDate: Binding<Date>, dependencies: AppDependencies) {
+    self.screenSize = screenSize
+    self._selectedDate = selectedDate
+    self.dependencies = dependencies
+    _vm = State(wrappedValue: HorizontalCalendarViewModel(
+      dailyProgressManager: dependencies.dailyProgressManager
+    ))
+  }
 
   private var showChevron: Bool {
     return vm.daysDifferenceFromToday(selectedDate) >= 5
   }
-  
+
   var body: some View {
     ScrollViewReader { proxy in
       ScrollView(.horizontal, showsIndicators: false) {
@@ -62,7 +72,7 @@ struct HorizontalCalendar: View {
       }
     }
   }
-  
+
   // MARK: - Actions
 
   private func selectDate(_ date: Date) {
@@ -84,6 +94,5 @@ struct HorizontalCalendar: View {
 }
 
 #Preview {
-  MainView()
-    .withPreviewContainer()
+  MainView(dependencies: .forPreview())
 }

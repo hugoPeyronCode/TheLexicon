@@ -18,6 +18,9 @@ class HorizontalCalendarViewModel {
   private var cachedToday: Date
   let calendar = Calendar.current
 
+  // Dependencies
+  private let dailyProgressManager: DailyProgressManager
+
   // Today is computed fresh each time to handle day changes
   var today: Date {
     calendar.startOfDay(for: Date())
@@ -25,7 +28,9 @@ class HorizontalCalendarViewModel {
 
   // MARK: - Init
 
-  init() {
+  init(dailyProgressManager: DailyProgressManager) {
+    self.dailyProgressManager = dailyProgressManager
+
     let calendar = Calendar.current
     let initialToday = calendar.startOfDay(for: Date())
 
@@ -59,37 +64,37 @@ class HorizontalCalendarViewModel {
 
     self.dates = result
   }
-  
+
   // MARK: - Functions
-  
+
   func isSelected(_ date: Date) -> Bool {
     guard let selectedDate else { return false }
     return calendar.isDate(date, inSameDayAs: selectedDate)
   }
-  
+
   func isFuture(_ date: Date) -> Bool {
     date > today
   }
-  
+
   func selectDate(_ date: Date) {
     guard !isFuture(date) else { return }
     selectedDate = date
   }
-  
+
   func completedCount(for date: Date) -> Int {
     if isFuture(date) {
       return 0
     }
-    return DailyProgressManager.shared.completedCount(for: date)
+    return dailyProgressManager.completedCount(for: date)
   }
 
   func totalCount(for date: Date) -> Int {
     if isFuture(date) {
       return 4 // Default total groups
     }
-    return DailyProgressManager.shared.totalCount(for: date)
+    return dailyProgressManager.totalCount(for: date)
   }
-  
+
   func daysDifferenceFromToday(_ date: Date) -> Int {
     calendar.dateComponents([.day], from: date, to: today).day ?? 0
   }

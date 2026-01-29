@@ -117,11 +117,16 @@ final class VocabularyProfileManager {
   private var modelContext: ModelContext?
   private var profile: VocabularyProfile?
 
-  // MARK: - Singleton
+  // Dependencies
+  private let wordDatabase: WordDatabase
+  private let wantToLearnManager: WantToLearnManager
 
-  static let shared = VocabularyProfileManager()
+  // MARK: - Initialization
 
-  private init() {}
+  init(wordDatabase: WordDatabase, wantToLearnManager: WantToLearnManager) {
+    self.wordDatabase = wordDatabase
+    self.wantToLearnManager = wantToLearnManager
+  }
 
   // MARK: - Computed Properties
 
@@ -229,7 +234,7 @@ final class VocabularyProfileManager {
 
     // Award category points based on the words
     for wordId in wordIds {
-      if let definition = WordDatabase.shared.definition(for: wordId),
+      if let definition = wordDatabase.definition(for: wordId),
          let category = SemanticCategory(rawValue: definition.category) {
         if let categoryScore = profile.categoryScores.first(where: { $0.category == category.rawValue }) {
           categoryScore.score += 2
@@ -246,7 +251,7 @@ final class VocabularyProfileManager {
 
     // Mark words as learned in WantToLearnManager
     for wordId in wordIds {
-      WantToLearnManager.shared.markAsLearned(wordId)
+      wantToLearnManager.markAsLearned(wordId)
     }
   }
 
@@ -339,9 +344,12 @@ extension VocabularyProfileManager {
   static func forPreview(
     overallScore: Int = 250,
     hasCompletedTest: Bool = true,
-    categoryScores: [SemanticCategory: Int]? = nil
+    categoryScores: [SemanticCategory: Int]? = nil,
+    wordDatabase: WordDatabase = WordDatabase(),
+    wantToLearnManager: WantToLearnManager? = nil
   ) -> VocabularyProfileManager {
-    let manager = VocabularyProfileManager()
+    let wtlManager = wantToLearnManager ?? WantToLearnManager(wordDatabase: wordDatabase)
+    let manager = VocabularyProfileManager(wordDatabase: wordDatabase, wantToLearnManager: wtlManager)
 
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     let container = try! ModelContainer(

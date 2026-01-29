@@ -39,11 +39,9 @@ final class StreakManager {
   private var streakData: StreakData?
   private let calendar = Calendar.current
 
-  // MARK: - Singleton
+  // MARK: - Initialization
 
-  static let shared = StreakManager()
-
-  private init() {}
+  init() {}
 
   // MARK: - Computed Properties
 

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct WordRevisionCard: View {
   let screenSize: CGSize
+  let dependencies: AppDependencies
   let action: () -> Void
 
   var body: some View {
@@ -181,7 +182,8 @@ private struct DifficultyIndicator: View {
 
 #Preview("Word Revision Card") {
   WordRevisionCard(
-    screenSize: CGSize(width: 393, height: 852)
+    screenSize: CGSize(width: 393, height: 852),
+    dependencies: .forPreview()
   ) {}
     .padding()
 }

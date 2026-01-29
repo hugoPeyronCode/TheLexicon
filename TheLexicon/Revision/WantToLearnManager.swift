@@ -31,6 +31,7 @@ final class WantToLearnWord {
 final class WantToLearnManager {
 
   private var modelContext: ModelContext?
+  private let wordDatabase: WordDatabase
 
   // Cache for quick lookups
   private var wordsCache: [String: WantToLearnWord] = [:]
@@ -38,11 +39,11 @@ final class WantToLearnManager {
   // Minimum words needed to create a custom level
   static let minimumWordsForLevel = 16
 
-  // MARK: - Singleton
+  // MARK: - Initialization
 
-  static let shared = WantToLearnManager()
-
-  private init() {}
+  init(wordDatabase: WordDatabase) {
+    self.wordDatabase = wordDatabase
+  }
 
   // MARK: - Setup
 
@@ -138,7 +139,7 @@ final class WantToLearnManager {
   /// Groups are created based on category or random groupings
   func generateCustomLevel() -> [WordGroup] {
     let wordIds = wordsForCustomLevel()
-    let definitions = wordIds.compactMap { WordDatabase.shared.definition(for: $0) }
+    let definitions = wordIds.compactMap { wordDatabase.definition(for: $0) }
 
     // Group by category first
     var wordsByCategory: [String: [WordDefinition]] = [:]
@@ -226,8 +227,8 @@ final class WantToLearnManager {
 // MARK: - Preview Support
 
 extension WantToLearnManager {
-  static func forPreview() -> WantToLearnManager {
-    let manager = WantToLearnManager()
+  static func forPreview(wordDatabase: WordDatabase = WordDatabase()) -> WantToLearnManager {
+    let manager = WantToLearnManager(wordDatabase: wordDatabase)
 
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: WantToLearnWord.self, configurations: config)

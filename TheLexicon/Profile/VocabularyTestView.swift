@@ -130,6 +130,8 @@ struct VocabularyTestData {
 struct VocabularyTestView: View {
   @Environment(\.dismiss) private var dismiss
 
+  let dependencies: AppDependencies
+
   @State private var currentWordIndex: Int = 0
   @State private var correctAnswers: Int = 0
   @State private var wrongAnswers: Int = 0
@@ -423,7 +425,7 @@ struct VocabularyTestView: View {
       }
     }
 
-    VocabularyProfileManager.shared.completeInitialTest(
+    dependencies.vocabularyProfileManager.completeInitialTest(
       score: calculateOverallScore(),
       categoryScores: normalizedScores
     )
@@ -435,5 +437,5 @@ struct VocabularyTestView: View {
 // MARK: - Preview
 
 #Preview {
-  VocabularyTestView()
+  VocabularyTestView(dependencies: .forPreview())
 }

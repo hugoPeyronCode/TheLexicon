@@ -11,10 +11,11 @@ struct InfiniteModeCard: View {
   let screenSize: CGSize
   let currentLevel: Int
   let completedLevels: Int
+  let levelDatabase: LevelDatabase
   let action: () -> Void
 
   private var levelData: InfiniteLevelData {
-    InfiniteModeData.level(currentLevel)
+    levelDatabase.level(currentLevel)
   }
 
   private var difficulty: InfiniteModeDifficulty {
@@ -97,13 +98,15 @@ struct DifficultyBadge: View {
 // MARK: - Preview
 
 #Preview {
-  GeometryReader { geometry in
+  let levelDatabase = LevelDatabase()
+  return GeometryReader { geometry in
     ScrollView {
       VStack(spacing: 16) {
         InfiniteModeCard(
           screenSize: geometry.size,
           currentLevel: 1,
-          completedLevels: 0
+          completedLevels: 0,
+          levelDatabase: levelDatabase
         ) {
           print("Tapped level 1")
         }
@@ -111,7 +114,8 @@ struct DifficultyBadge: View {
         InfiniteModeCard(
           screenSize: geometry.size,
           currentLevel: 3,
-          completedLevels: 2
+          completedLevels: 2,
+          levelDatabase: levelDatabase
         ) {
           print("Tapped level 3")
         }
@@ -119,7 +123,8 @@ struct DifficultyBadge: View {
         InfiniteModeCard(
           screenSize: geometry.size,
           currentLevel: 6,
-          completedLevels: 5
+          completedLevels: 5,
+          levelDatabase: levelDatabase
         ) {
           print("Tapped level 6")
         }
@@ -127,7 +132,8 @@ struct DifficultyBadge: View {
         InfiniteModeCard(
           screenSize: geometry.size,
           currentLevel: 9,
-          completedLevels: 8
+          completedLevels: 8,
+          levelDatabase: levelDatabase
         ) {
           print("Tapped level 9")
         }

@@ -12,6 +12,7 @@ import SwiftData
 struct TheLexiconApp: App {
 
   let modelContainer: ModelContainer
+  let dependencies = AppDependencies()
 
   init() {
     do {
@@ -31,14 +32,9 @@ struct TheLexiconApp: App {
 
   var body: some Scene {
     WindowGroup {
-      MainView()
+      MainView(dependencies: dependencies)
         .onAppear {
-          DailyProgressManager.shared.configure(with: modelContainer.mainContext)
-          PuzzleStateManager.shared.configure(with: modelContainer.mainContext)
-          InfiniteModeProgressManager.shared.configure(with: modelContainer.mainContext)
-          StreakManager.shared.configure(with: modelContainer.mainContext)
-          VocabularyProfileManager.shared.configure(with: modelContainer.mainContext)
-          WantToLearnManager.shared.configure(with: modelContainer.mainContext)
+          dependencies.configure(with: modelContainer.mainContext)
         }
     }
     .modelContainer(modelContainer)

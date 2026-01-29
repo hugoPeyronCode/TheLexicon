@@ -30,12 +30,13 @@ final class InfiniteModeProgressManager {
 
   private var modelContext: ModelContext?
   private var progress: InfiniteModeProgress?
+  private let levelDatabase: LevelDatabase
 
-  // MARK: - Singleton
+  // MARK: - Initialization
 
-  static let shared = InfiniteModeProgressManager()
-
-  private init() {}
+  init(levelDatabase: LevelDatabase) {
+    self.levelDatabase = levelDatabase
+  }
 
   // MARK: - Computed Properties
 
@@ -48,11 +49,11 @@ final class InfiniteModeProgressManager {
   }
 
   var currentDifficulty: InfiniteModeDifficulty {
-    InfiniteModeData.difficulty(for: currentLevel)
+    levelDatabase.difficulty(for: currentLevel)
   }
 
   var currentLevelData: InfiniteLevelData {
-    InfiniteModeData.level(currentLevel)
+    levelDatabase.level(currentLevel)
   }
 
   // MARK: - Setup
@@ -68,7 +69,7 @@ final class InfiniteModeProgressManager {
     guard let progress else { return }
 
     progress.completedLevels += 1
-    progress.currentLevel = min(progress.currentLevel + 1, InfiniteModeData.totalLevels)
+    progress.currentLevel = min(progress.currentLevel + 1, LevelDatabase.totalLevels)
     progress.lastPlayedDate = Date()
 
     saveProgress()
@@ -87,7 +88,7 @@ final class InfiniteModeProgressManager {
   func setLevel(_ level: Int) {
     guard let progress else { return }
 
-    let clampedLevel = max(1, min(level, InfiniteModeData.totalLevels))
+    let clampedLevel = max(1, min(level, LevelDatabase.totalLevels))
     progress.currentLevel = clampedLevel
     progress.lastPlayedDate = Date()
 
@@ -127,7 +128,7 @@ final class InfiniteModeProgressManager {
 
 extension InfiniteModeProgressManager {
   static func forPreview(level: Int = 1, completedLevels: Int = 0) -> InfiniteModeProgressManager {
-    let manager = InfiniteModeProgressManager()
+    let manager = InfiniteModeProgressManager(levelDatabase: LevelDatabase())
 
     // Create an in-memory container for previews
     let config = ModelConfiguration(isStoredInMemoryOnly: true)

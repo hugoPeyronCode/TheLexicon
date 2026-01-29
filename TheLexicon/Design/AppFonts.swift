@@ -29,11 +29,13 @@ enum AppFontDesign {
 
 @Observable
 class AppFontManager {
-  static let shared = AppFontManager()
-  
+  /// Shared instance for static AppFonts access.
+  /// This is configured by AppDependencies at app startup.
+  static var current: AppFontManager = AppFontManager()
+
   var currentDesign: AppFontDesign = .serif
-  
-  private init() {}
+
+  init() {}
 }
 
 // MARK: - App Fonts
@@ -43,7 +45,7 @@ enum AppFonts {
   // MARK: - Current Design
   
   static var design: Font.Design {
-    AppFontManager.shared.currentDesign.swiftUIDesign
+    AppFontManager.current.currentDesign.swiftUIDesign
   }
   
   // MARK: - Size
